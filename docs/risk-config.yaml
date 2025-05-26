@@ -1,0 +1,15 @@
+# EdgeFlow Trader ― Risk Parameters
+startingBalance:         100.00        # USD
+startingLots:            0.25          # lots
+
+# Dynamic lot-sizing rule
+lotIncrease:
+  triggerBalanceStep:    200.00        # USD
+  lotsPerStep:           0.25          # lots
+  hardMaxLots:           50            # absolute ceiling
+
+# Risk & exposure caps
+maxRiskPerTradePct:      10.0          # % of account equity per position
+dailyLossCapPct:         0.0           # 0 = disabled (no daily stop-out for now)
+
+maxOpenTrades:           4             # simultaneous positions
