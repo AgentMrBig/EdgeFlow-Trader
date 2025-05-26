@@ -1,0 +1,13 @@
+version: "3.8"
+services:
+  timescaledb:
+    image: timescale/timescaledb-ha:pg14-latest
+    container_name: edgeflow-timescaledb
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=edgeflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data:/var/lib/postgresql/data

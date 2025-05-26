@@ -1,0 +1,22 @@
+# ---- EdgeFlow Trader ----
+# Python
+*.pyc
+__pycache__/
+.venv/
+.env
+
+# MQL4 artefacts
+*.ex4
+*.ex5
+*.hcc
+*.log
+MQL4/Files/ticks.csv
+MQL4/Files/orders.json
+
+# Docker / DB
+docker/data/
+*.pid
+
+# OS cruft
+.DS_Store
+Thumbs.db
