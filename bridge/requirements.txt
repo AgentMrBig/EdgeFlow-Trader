@@ -1,7 +1,8 @@
 fastapi
-uvicorn[standard]
+uvicorn
 watchdog
 pydantic
 psycopg2-binary
-tomli
 pyyaml
+pytz
+matplotlib
