@@ -1,6 +1,6 @@
 # docs/protocol.md  
 *EdgeFlow Trader – Data & Command Protocol*  
-**Version 0.1 (26-May-2025)**
+**Version 0.2 (26-May-2025)**
 
 ---
 
@@ -8,16 +8,10 @@
 
 | Actor | Responsibility | File(s) Written | File(s) Read |
 |-------|----------------|-----------------|--------------|
-| **EA** (MQL4) | • Collect live ticks<br>• Execute orders<br>• Acknowledge fills | `ticks.csv` (✔︎)<br>`executions.csv` (Sprint-1) | `orders.json` |
-| **Bridge** (FastAPI) | • Ingest ticks into TimescaleDB<br>• Publish orders via JSON<br>• Ingest execution acks (Sprint-1) | `orders.json` | `ticks.csv`<br>`executions.csv` |
-| **TimescaleDB** | • Persist tick & execution history | _N/A_ | _N/A_ |
-| **ML / Logic Core** | • Decide when to trade (future phase) | REST → `POST /order` | SQL (selects) |
-
-All files reside in the MT4 “**Files**” directory:
-
-```
-C:\Users\<YOU>\AppData\Roaming\MetaQuotes\Terminal\<HASH>\MQL4\Files\
-```
+| **EA** (MQL4) | • Collect live ticks<br>• Execute orders<br>• Acknowledge fills | `ticks.csv`, `executions.csv` | `orders.json` |
+| **Bridge** (FastAPI) | • Ingest ticks into DB<br>• Validate & write order JSON<br>• Ingest fills from EA | `orders.json` | `ticks.csv`, `executions.csv` |
+| **TimescaleDB** | • Persist tick & execution history | — | — |
+| **ML Logic (future)** | • Analyze ticks<br>• Generate orders via REST | — | `/order` endpoint, Timescale data |
 
 ---
 
@@ -26,20 +20,24 @@ C:\Users\<YOU>\AppData\Roaming\MetaQuotes\Terminal\<HASH>\MQL4\Files\
 ### Location  
 Written by EA, tailed by Bridge.
 
-### Schema (comma-separated)
+### Format (CSV)
+
+```
+time,bid,ask,spread
+2025-05-26 14:07:12,142.778,142.788,10.0
+```
 
 | Column | Type | Example |
 |--------|------|---------|
-| `time` | `YYYY-MM-DD HH:MM:SS` (broker server TZ) | `2025-05-26 14:07:12` |
+| `time` | `string` – `YYYY-MM-DD HH:MM:SS` | `2025-05-26 14:07:12` |
 | `bid`  | `float` | `142.778` |
 | `ask`  | `float` | `142.788` |
 | `spread` | `float` (points) | `10.0` |
 
-First row is the **header**.  
-Bridge appends new rows and inserts them into table:
+Inserted into TimescaleDB table:
 
 ```sql
-CREATE TABLE IF NOT EXISTS ticks(
+CREATE TABLE ticks (
   ts     TIMESTAMPTZ,
   bid    DOUBLE PRECISION,
   ask    DOUBLE PRECISION,
@@ -52,48 +50,58 @@ CREATE TABLE IF NOT EXISTS ticks(
 ## 3 Order Command — `orders.json`
 
 ### Location  
-Written by Bridge, polled by EA every 250 ms.
+Written by Bridge, read by EA every tick.
 
-### Payload (single JSON object)
+### Format (JSON)
 
 ```json
 {
   "symbol": "USDJPY",
-  "side"  : "buy",
-  "lot"   : 0.25,
-  "sl"    : 142.300,
-  "tp"    : 143.050
+  "side":   "buy",
+  "lot":    0.25,
+  "sl":     null,
+  "tp":     null,
+  "slippage": 3
 }
 ```
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `symbol` | `string` | MT4 symbol (case-sensitive). |
-| `side` | `"buy"` \| `"sell"` | Trade direction. |
-| `lot`  | `float` | Lot size (broker min step). |
-| `sl`   | `float | null` | Stop-loss price (optional). |
-| `tp`   | `float | null` | Take-profit price (optional). |
+| `symbol` | `string` | MT4 symbol (case-sensitive) |
+| `side` | `"buy"` or `"sell"` | Direction |
+| `lot` | `float` | Size in lots |
+| `sl`, `tp` | `float` or `null` | Optional SL/TP price |
+| `slippage` | `int` | Max price drift (in points) allowed |
 
-Bridge **overwrites** `orders.json` with one order object.  
-EA reads JSON → `OrderSend()` → deletes the file.
+→ The EA deletes the file after processing.
 
 ---
 
-## 4 Execution Ack — `executions.csv` *(planned Sprint-1)*
+## 4 Execution Ack — `executions.csv` (v0.2+)
 
-| Column | Type | Notes |
-|--------|------|-------|
-| `ticket` | `int` | MT4 order ticket. |
-| `time` | `YYYY-MM-DD HH:MM:SS` | Open time. |
-| `symbol` | `string` | Same as request. |
-| `side` | `"buy"` \| `"sell"` | — |
-| `lot` | `float` | Actual lot size. |
-| `price` | `float` | Fill price. |
+### Location  
+Written by EA, tailed by bridge
 
-Bridge ingests rows and updates `executions` table:
+### Format (CSV)
+
+```
+ticket,time,symbol,side,lot,price
+12345678,2025-05-26 14:08:02,USDJPY,buy,0.25,142.784
+```
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `ticket` | `int` | MT4 trade ticket ID |
+| `time` | `string` – `YYYY-MM-DD HH:MM:SS` | Order fill time |
+| `symbol` | `string` | — |
+| `side` | `"buy"` or `"sell"` | Direction |
+| `lot` | `float` | Executed lot size |
+| `price` | `float` | Fill price |
+
+Inserted into TimescaleDB:
 
 ```sql
-CREATE TABLE IF NOT EXISTS executions(
+CREATE TABLE executions (
   ticket  BIGINT PRIMARY KEY,
   ts      TIMESTAMPTZ,
   symbol  TEXT,
@@ -105,41 +113,26 @@ CREATE TABLE IF NOT EXISTS executions(
 
 ---
 
-## 5 Error Handling
+## 5 Error Handling & Recovery
 
-| Layer | Scenario | Action |
-|-------|----------|--------|
-| EA | `OrderSend()` fails | Prints error code in Experts tab; leaves `orders.json` intact so Bridge can decide to retry or delete. |
-| Bridge | Malformed CSV row | Skips row, logs `!! DB insert error …`. |
-| Bridge | DB connection lost | Raises exception → process exit (code≠0) → external supervisor (PM2 / systemd) restarts. |
-| Bridge | Invalid order JSON (missing field) | Returns HTTP 400 to client. |
-
----
-
-## 6 Versioning & Compatibility
-
-* **v0.1** – tick CSV & order JSON (this doc).  
-* **v0.2** – add `executions.csv` and DB schema for fills.  
-* **v0.3** – extend order JSON with `comment`, `magic`, and `type` (market vs pending).  
-
-Changes are **append-only**; existing columns remain stable.
+| Component | Failure | Recovery Behavior |
+|-----------|---------|-------------------|
+| EA | Invalid JSON | Prints warning, skips file |
+| EA | OrderSend fails | Logs error, does not write to executions.csv |
+| Bridge | Malformed CSV row | Skips row, logs `!! DB insert error` |
+| Bridge | Invalid JSON on POST | HTTP 400 |
+| Bridge | `orders.json` write fails | HTTP 500 |
+| Bridge | `executions.csv` missing | Waits for file to appear, no crash |
 
 ---
 
-## 7 Example End-to-End Flow (v0.1)
+## 6 Version History
 
-1. EA writes  
-   ```
-   2025-05-26 14:07:12,142.778,142.788,10.0
-   ```  
-   to `ticks.csv`.
-2. Bridge detects file change, inserts row into TimescaleDB.
-3. ML core posts  
-   ```
-   POST /order {symbol:"USDJPY", side:"buy", lot:0.25}
-   ```
-4. Bridge writes same JSON to `orders.json`.
-5. EA reads file, executes `OrderSend()`, prints confirmation, deletes file.
+| Version | Summary |
+|---------|---------|
+| **0.1** | Tick ingestion, order queueing |
+| **0.2** | Added order execution, `executions.csv`, `slippage` config |
+| _(next)_ | Planned: fill-to-position logic, profit calc, ML trade loop |
 
 ---
 
