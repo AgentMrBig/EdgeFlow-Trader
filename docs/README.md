@@ -99,6 +99,7 @@ graph TD
 
 * **Protocol spec** – [docs/protocol.md](docs/protocol.md)  
 * **Risk parameters** – [docs/risk-config.yaml](docs/risk-config.yaml)  
+* **Strategy rules** – [docs/strategy-rules.md](docs/strategy-rules.md)  
 * **Technical design log** – [docs/techdoc.md](docs/techdoc.md)
 
 ---
