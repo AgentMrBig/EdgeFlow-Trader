@@ -4,3 +4,4 @@ watchdog
 pydantic
 psycopg2-binary
 tomli
+pyyaml
