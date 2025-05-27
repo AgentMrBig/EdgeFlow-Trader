@@ -1,5 +1,2 @@
-cd "/c/Users/PcTech/Desktop/FOREXAI/edgeflow_trader/bridge" \
-&& [ -d .venv ] || python -m venv .venv \
-&& source .venv/Scripts/activate \
-&& pip install -q -r requirements.txt \
-&& python main.py
+python -m venv .venv && source .venv/Scripts/activate && pip install -r requirements.txt
+

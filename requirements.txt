@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+jinja2
+python-multipart
+pandas
+matplotlib
+psycopg2-binary
+watchdog
+pytz
+chartjs-adapter-luxon

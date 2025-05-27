@@ -1,8 +1,0 @@
-fastapi
-uvicorn
-watchdog
-pydantic
-psycopg2-binary
-pyyaml
-pytz
-matplotlib

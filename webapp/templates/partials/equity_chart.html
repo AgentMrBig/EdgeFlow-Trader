@@ -1,0 +1,53 @@
+<div class="card p-4">
+    <h5 class="mb-3">Equity Curve</h5>
+    <canvas id="equityChart" height="350"></canvas>
+  
+    <script id="equity-data" type="application/json">
+      {{ points | tojson }}
+    </script>
+  
+    <script>
+      const raw = document.getElementById("equity-data").textContent;
+      const dataPoints = JSON.parse(raw);
+  
+      const ctx = document.getElementById('equityChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          datasets: [{
+            label: 'Equity ($)',
+            data: dataPoints,
+            borderColor: 'lime',
+            fill: false,
+            tension: 0.1
+          }]
+        },
+        options: {
+          parsing: false,
+          scales: {
+            x: {
+              type: 'time',
+              time: {
+                parser: 'YYYY-MM-DD HH:mm:ss',
+                tooltipFormat: 'll HH:mm',
+                displayFormats: { minute: 'HH:mm' }
+              },
+              title: { display: true, text: 'Time' },
+              ticks: { color: '#ccc' },
+              grid: { color: '#333' }
+            },
+            y: {
+              title: { display: true, text: 'Cumulative P&L ($)' },
+              ticks: { color: '#ccc' },
+              grid: { color: '#333' }
+            }
+          },
+          plugins: {
+            legend: { labels: { color: '#ccc' } },
+            tooltip: { mode: 'index', intersect: false }
+          }
+        }
+      });
+    </script>
+  </div>
+  

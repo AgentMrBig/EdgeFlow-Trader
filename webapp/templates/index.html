@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>EdgeFlow Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3.3.0/build/global/luxon.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.0"></script>
+
+  <style>
+    body {
+      background-color: #0f0f0f;
+      color: #e0e0e0;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .sidebar {
+      background-color: #161616;
+      min-height: 100vh;
+    }
+    .sidebar a {
+      color: #bbb;
+      padding: 1rem;
+      display: block;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .sidebar a:hover {
+      background-color: #252525;
+      color: #fff;
+    }
+    .card {
+      background-color: #1e1e1e;
+      border: none;
+      color: #ddd;
+    }
+    .card h5 {
+      color: #fff;
+    }
+    .dashboard-header {
+      padding: 1rem 2rem;
+      background-color: #121212;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid #333;
+    }
+    canvas {
+      background: #222;
+      border-radius: 8px;
+    }
+    .dashboard-section {
+      display: none;
+    }
+    .dashboard-section.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+<div class="container-fluid">
+  <div class="row">
+    <nav class="col-md-2 d-none d-md-block sidebar">
+      <h4 class="text-center text-light py-3">EdgeFlow</h4>
+      <a onclick="showSection('dashboard')"><i class="bi bi-house"></i> Dashboard Home</a>
+      <a onclick="showSection('equity')"><i class="bi bi-graph-up"></i> Equity Curve</a>
+      <a onclick="showSection('trades')"><i class="bi bi-table"></i> Trade Log</a>
+      <a href="#"><i class="bi bi-cpu"></i> Optimizer (coming)</a>
+      <a href="#"><i class="bi bi-gear"></i> Settings</a>
+    </nav>
+    <main class="col-md-10 ms-sm-auto col-lg-10 px-md-4">
+      <div class="dashboard-header">
+        <h1>Welcome to EdgeFlow</h1>
+        <p>Scalable trading intelligence platform</p>
+      </div>
+
+      <!-- Dashboard Stats -->
+      <div id="dashboard" class="dashboard-section active">
+        <div class="row mb-4">
+          <div class="col-md-3">
+            <div class="card p-3">
+              <h5>Total Trades</h5>
+              <p class="fs-4">{{ total_trades }}</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card p-3">
+              <h5>Total Profit</h5>
+              <p class="fs-4">${{ total_profit }}</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card p-3">
+              <h5>Win Rate</h5>
+              <p class="fs-4">{{ win_rate }}%</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card p-3">
+              <h5>Open Trades</h5>
+              <p class="fs-4">{{ open_trades }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Embed Equity Chart inside dashboard by default -->
+        <div class="card p-4">
+          <h5 class="mb-3">Equity Curve</h5>
+          <canvas id="equityChart" height="350"></canvas>
+        </div>
+        <script>
+          const rawData = JSON.parse('{{ points | tojson | safe }}');
+        
+          const ctx = document.getElementById('equityChart').getContext('2d');
+        
+          new Chart(ctx, {
+            type: 'line',
+            data: {
+              datasets: [{
+                label: 'Equity ($)',
+                data: rawData,
+                parsing: {
+                  xAxisKey: 'x',
+                  yAxisKey: 'y'
+                },
+                borderColor: 'lime',
+                backgroundColor: 'transparent',
+                tension: 0.1
+              }]
+            },
+            options: {
+              responsive: true,
+              scales: {
+                x: {
+                  type: 'time',
+                  adapters: {
+                    date: {
+                      zone: 'utc'  // optional: ensures consistent parsing
+                    }
+                  },
+                  time: {
+                    parser: 'yyyy-MM-dd HH:mm:ss',  // this matches your timestamp format
+                    tooltipFormat: 'MMM dd, HH:mm',
+                    displayFormats: {
+                      minute: 'HH:mm',
+                      hour: 'MMM dd HH:mm'
+                    }
+                  },
+                  title: {
+                    display: true,
+                    text: 'Time'
+                  },
+                  ticks: {
+                    color: '#ccc'
+                  },
+                  grid: {
+                    color: '#333'
+                  }
+                },
+                y: {
+                  title: {
+                    display: true,
+                    text: 'Cumulative P&L ($)'
+                  },
+                  ticks: {
+                    color: '#ccc'
+                  },
+                  grid: {
+                    color: '#333'
+                  }
+                }
+              },
+              plugins: {
+                legend: {
+                  labels: { color: '#ccc' }
+                },
+                tooltip: {
+                  mode: 'index',
+                  intersect: false
+                }
+              }
+            }
+          });
+        </script>
+        
+        
+      </div>
+
+      <!-- Trade Log Section -->
+      <div id="equity" class="dashboard-section">
+        <div class="card p-4">
+          <h5>Equity Curve (Coming Soon)</h5>
+        </div>
+      </div>
+
+      <div id="trades" class="dashboard-section">
+        <div class="card p-4">
+          <h5>Trade Log (Coming Soon)</h5>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script>
+  function showSection(id) {
+    document.querySelectorAll('.dashboard-section').forEach(el => {
+      el.classList.remove('active');
+    });
+    document.getElementById(id).classList.add('active');
+  }
+</script>
+</body>
+</html>

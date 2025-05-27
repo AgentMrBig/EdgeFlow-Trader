@@ -11,6 +11,8 @@
 | **MT4 EA** – tick logger & order listener | **✅ v0.1b** | Writes `ticks.csv`, echoes `orders.json`. |
 | **Python Bridge** – CSV ↔ DB ↔ REST | **✅ v0.1d** | Streams ticks into TimescaleDB, exposes `POST /order`. |
 | **TimescaleDB** | **✅** | Docker container `edgeflow-timescaledb`. |
+| **Backtester / Strategy Sim** | **✅** | Rule-based logic → simulated PnL + equity tracking. |
+| **Web Dashboard** – stats + equity curve | **✅** | Charts trades and shows win-rate, P&L on /dashboard. |
 | **Order execution logic** | 🔜 Sprint-1 | Parse JSON → `OrderSend()` + execution-ack. |
 | **Risk engine / sizing rules** | 🔜 Sprint-1 | 10 % max risk, 0.25-lot start, +0.25 per $200. |
 | **ML decision core** | 🚧 | Phase-4 roadmap. |
@@ -46,13 +48,13 @@ curl -X POST http://localhost:8000/order \
      -d '{"symbol":"USDJPY","side":"buy","lot":0.01}'
 ```
 
-*MT4* → **Experts** tab should show
+*MT4* → **Experts** tab should show:
 
 ```
 [EdgeFlow] ORDER RECEIVED -> {"symbol":"USDJPY","side":"buy","lot":0.01}
 ```
 
-Verify tick flow:
+Check tick ingestion:
 
 ```bash
 docker exec -it edgeflow-timescaledb \
@@ -62,7 +64,27 @@ docker exec -it edgeflow-timescaledb \
 
 ---
 
-## 3 Repo Structure
+## 3 Web Dashboard
+
+```bash
+# from project root
+cd webapp
+uvicorn main:app --reload
+```
+
+Navigate to `http://127.0.0.1:8000`:
+
+- View **total trades**, **win rate**, **cumulative P&L**
+- Live **equity curve** chart powered by Chart.js + Luxon
+- Navigation panel with toggleable dashboard views
+
+Requires:  
+- `backtest/simulated_trades.csv` → generated via `simulate_strategy.py`
+- `equity_data.json` is generated on-demand via backend logic (no manual step)
+
+---
+
+## 4 Repo Structure
 
 ```text
 EdgeFlow-Trader/
@@ -70,8 +92,15 @@ EdgeFlow-Trader/
 ├─ bridge/                     – FastAPI bridge & watcher
 │   ├─ main.py                 – bridge app (v0.1d)
 │   └─ main.toml               – path to MT4 Files folder
+├─ backtest/                   – strategy testing + equity exporter
+│   ├─ simulate_strategy.py
+│   └─ export_equity_json.py
+├─ webapp/                     – FastAPI + Jinja2 + Chart.js dashboard
+│   ├─ main.py
+│   ├─ templates/index.html
+│   └─ static/equity_data.json
 ├─ docker/
-│   └─ timescaledb-compose.yml – one-liner DB stack
+│   └─ timescaledb-compose.yml
 ├─ docs/
 │   ├─ techdoc.md              – architecture & sprint logs
 │   ├─ protocol.md             – tick / order JSON schemas
@@ -81,7 +110,7 @@ EdgeFlow-Trader/
 
 ---
 
-## 4 Dev Roadmap
+## 5 Dev Roadmap
 
 ```mermaid
 graph TD
@@ -95,7 +124,7 @@ graph TD
 
 ---
 
-## 5 Links & Docs
+## 6 Links & Docs
 
 * **Protocol spec** – [docs/protocol.md](docs/protocol.md)  
 * **Risk parameters** – [docs/risk-config.yaml](docs/risk-config.yaml)  
@@ -104,7 +133,7 @@ graph TD
 
 ---
 
-## 6 Branch & Commit Strategy
+## 7 Branch & Commit Strategy
 
 * **`main`** = deployable state (last green sprint).  
 * Feature branches → PR → squash-merge into **`dev`** → fast-forward **`main`** on sprint release.  
@@ -112,9 +141,9 @@ graph TD
 
 ---
 
-## 7 Next Up 🚀
+## 8 Next Up 🚀
 
 1. **OrderSend implementation** inside the EA (market orders + error handling).  
 2. **Execution-ack loop** – EA writes `executions.csv`; bridge ingests tickets into DB.  
 3. **Risk guard** – enforce rules from `docs/risk-config.yaml` before queuing any order.  
-4. **CI badges (optional)** – add lint/test workflow & Timescale health badge.
+4. **Optimizer UI** – connect equity improvements to backtest engine.
