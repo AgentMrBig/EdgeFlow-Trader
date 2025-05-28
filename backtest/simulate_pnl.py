@@ -54,11 +54,11 @@ for i in range(MA_PERIOD + 2, len(candles) - 60):
     if not (TRADING_START <= now.dt.time() <= TRADING_END):
         continue
 
-    closes = [c.close for c in candles[i-MA_PERIOD:i]]
+    closes = [c.close for c in candles[i - MA_PERIOD:i]]
     ma = statistics.mean(closes)
 
-    prev = candles[i-1]
-    prev2 = candles[i-2]
+    prev = candles[i - 1]
+    prev2 = candles[i - 2]
 
     broke_below_ma = prev2.close > ma and prev.close < ma
     retest_ma = prev.high >= ma
@@ -66,23 +66,27 @@ for i in range(MA_PERIOD + 2, len(candles) - 60):
 
     if broke_below_ma and retest_ma and broke_low:
         entry_price = now.close
+        entry_time = now.dt
         tp = entry_price - TP_PIPS * PIP_SCALE
         sl = entry_price + SL_PIPS * PIP_SCALE
         result = "timeout"
         exit_price = entry_price
         pnl = 0.0
+        exit_time = candles[i + 60].dt  # default timeout exit
 
-        for j in range(i+1, i+60):
+        for j in range(i + 1, i + 60):
             future = candles[j]
             if future.low <= tp:
                 result = "win"
                 exit_price = tp
                 pnl = TP_PIPS * LOT_SIZE * PIP_VALUE_PER_LOT
+                exit_time = future.dt
                 break
             elif future.high >= sl:
                 result = "loss"
                 exit_price = sl
                 pnl = -SL_PIPS * LOT_SIZE * PIP_VALUE_PER_LOT
+                exit_time = future.dt
                 break
 
         hour_block = now.dt.strftime("%H:%M")
@@ -96,10 +100,13 @@ for i in range(MA_PERIOD + 2, len(candles) - 60):
         balance_history.append((now.dt, cumulative_profit))
 
         entries.append({
-            "timestamp": now.dt.strftime("%Y-%m-%d %H:%M:%S"),
+            "entry_time": entry_time.strftime("%Y-%m-%d %H:%M:%S"),
+            "exit_time": exit_time.strftime("%Y-%m-%d %H:%M:%S"),
             "symbol": SYMBOL,
             "side": "sell",
             "entry_price": round(entry_price, 5),
+            "tp": round(tp, 5),
+            "sl": round(sl, 5),
             "exit_price": round(exit_price, 5),
             "result": result,
             "pnl": pnl
