@@ -1,5 +1,5 @@
 //+------------------------------------------------------------------+
-//| EdgeFlow Trader EA  v0.2 - Fixed                                 |
+//| EdgeFlow Trader EA  v0.2 - Execution Logging Polished + Lot Fix |
 //+------------------------------------------------------------------+
 #property strict
 #property copyright "EdgeFlow"
@@ -30,13 +30,11 @@ string Extract(string json, string key)
    if (q == -1 || (e != -1 && e < q)) q = e;
    string raw = StringSubstr(json, p, q - p);
 
-   // Trim leading/trailing whitespace manually
    while (StringLen(raw) > 0 && StringGetChar(raw, 0) <= ' ')
       raw = StringSubstr(raw, 1);
    while (StringLen(raw) > 0 && StringGetChar(raw, StringLen(raw) - 1) <= ' ')
       raw = StringSubstr(raw, 0, StringLen(raw) - 1);
 
-   // Remove quotes and "null"
    raw = StringReplace(raw, "\"", "");
    raw = StringReplace(raw, "null", "");
 
@@ -64,24 +62,31 @@ void OnTick()
    if (ofh < 0) return;
 
    string j = FileReadString(ofh);
+   Print("Raw order JSON: ", j);
+
    FileClose(ofh);
    FileDelete(OrderFile);
 
    if (StringLen(j) < 10) return;
 
-   string symbol = Extract(j, "symbol");
    string side   = Extract(j, "side");
    string lotS   = Extract(j, "lot");
    string slS    = Extract(j, "sl");
    string tpS    = Extract(j, "tp");
    string slipS  = Extract(j, "slippage");
 
+   string symbol = Symbol();  // Force chart symbol
+
    if (symbol == "" || side == "" || lotS == "") {
       Print("Bad JSON:", j);
       return;
    }
 
-   double lot = StrToDouble(lotS);
+   // Normalize lot size precision
+   double lotStep = MarketInfo(symbol, MODE_LOTSTEP);
+   double lot = NormalizeDouble(StrToDouble(lotS), 2);
+   lot = MathMax(lot, lotStep);  // Ensure it's not below broker minimum
+
    double sl  = (slS == "") ? 0 : StrToDouble(slS);
    double tp  = (tpS == "") ? 0 : StrToDouble(tpS);
    int slip   = (slipS == "") ? 3 : (int)StrToInteger(slipS);
@@ -96,7 +101,8 @@ void OnTick()
       logExecution(ticket, symbol, side, lot, price);
       PrintFormat("EXECUTED ticket=%d lot=%.2f at %.5f", ticket, lot, price);
    } else {
-      PrintFormat("ORDER FAIL err=%d", GetLastError());
+      int err = GetLastError();
+      PrintFormat("ORDER FAIL err=%d", err);
    }
 }
 
@@ -133,7 +139,14 @@ void logExecution(int ticket, string sym, string side, double lot, double price)
    FileSeek(fh, 0, SEEK_END);
    string ts = TimeToString(TimeCurrent(), TIME_DATE | TIME_SECONDS);
    StringReplace(ts, ".", "-");
-   FileWrite(fh, ticket, ts, sym, side, lot, price);
+   FileWrite(fh,
+     IntegerToString(ticket),
+     ts,
+     sym,
+     side,
+     DoubleToString(lot, 2),
+     DoubleToString(price, _Digits)
+   );
    FileFlush(fh);
    FileClose(fh);
 }

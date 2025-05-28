@@ -18,7 +18,8 @@ TICK_CSV  = FILES_DIR / "ticks.csv"
 ORDER_JSON= FILES_DIR / "orders.json"
 EXEC_CSV  = FILES_DIR / "executions.csv"
 
-RISK = yaml.safe_load(open("../docs/risk-config.yaml"))
+RISK = yaml.safe_load(open(pathlib.Path(__file__).parent.parent / "docs" / "risk-config.yaml"))
+
 SLIPPAGE = RISK.get("slippagePoints", 3)
 
 print(">> Bridge watching:", FILES_DIR)
@@ -128,3 +129,6 @@ def _startup():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000)
+
+    print(app.routes)
+

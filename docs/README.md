@@ -4,22 +4,22 @@
 
 ---
 
-## 1 Project Snapshot
+## 1 Project Snapshot
 
-| Piece | Status | Notes |
-|-------|--------|-------|
-| **MT4 EA** – tick logger & order listener | **✅ v0.1b** | Writes `ticks.csv`, echoes `orders.json`. |
-| **Python Bridge** – CSV ↔ DB ↔ REST | **✅ v0.1d** | Streams ticks into TimescaleDB, exposes `POST /order`. |
-| **TimescaleDB** | **✅** | Docker container `edgeflow-timescaledb`. |
-| **Backtester / Strategy Sim** | **✅** | Rule-based logic → simulated PnL + equity tracking. |
-| **Web Dashboard** – stats + equity curve | **✅** | Charts trades and shows win-rate, P&L on /dashboard. |
-| **Order execution logic** | 🔜 Sprint-1 | Parse JSON → `OrderSend()` + execution-ack. |
-| **Risk engine / sizing rules** | 🔜 Sprint-1 | 10 % max risk, 0.25-lot start, +0.25 per $200. |
-| **ML decision core** | 🚧 | Phase-4 roadmap. |
+| Piece                                     | Status         | Notes                                                                                |
+| ----------------------------------------- | -------------- | ------------------------------------------------------------------------------------ |
+| **MT4 EA** – tick logger & order listener | **✅ v0.2**     | Writes `ticks.csv`, reads and executes from `orders.json`, logs to `executions.csv`. |
+| **Python Bridge** – CSV ↔ DB ↔ REST       | **✅ v0.1d**    | Streams ticks into TimescaleDB, exposes `POST /order`.                               |
+| **TimescaleDB**                           | **✅**          | Docker container `edgeflow-timescaledb`.                                             |
+| **Backtester / Strategy Sim**             | **✅**          | Rule-based logic → simulated PnL + equity tracking.                                  |
+| **Web Dashboard** – stats + equity curve  | **✅**          | Charts trades and shows win-rate, P\&L on /dashboard.                                |
+| **Order execution logic**                 | **✅ Sprint-1** | `OrderSend()` implemented in EA with lot validation and logging.                     |
+| **Risk engine / sizing rules**            | 🕸️ Sprint-2   | 10 % max risk, 0.25-lot start, +0.25 per \$200.                                      |
+| **ML decision core**                      | 🚧             | Phase-4 roadmap.                                                                     |
 
 ---
 
-## 2 Quick Start (local dev)
+## 2 Quick Start (local dev)
 
 ```bash
 # clone and enter repo
@@ -37,13 +37,13 @@ docker compose -f docker/timescaledb-compose.yml up -d
 cd bridge
 python -m venv .venv && source .venv/Scripts/activate   # first time only
 pip install -r requirements.txt                         # first time only
-python main.py
+uvicorn main:app --port 8001 --reload
 ```
 
 ### Smoke Test
 
 ```bash
-curl -X POST http://localhost:8000/order \
+curl -X POST http://localhost:8001/order \
      -H "Content-Type: application/json" \
      -d '{"symbol":"USDJPY","side":"buy","lot":0.01}'
 ```
@@ -51,7 +51,8 @@ curl -X POST http://localhost:8000/order \
 *MT4* → **Experts** tab should show:
 
 ```
-[EdgeFlow] ORDER RECEIVED -> {"symbol":"USDJPY","side":"buy","lot":0.01}
+Raw order JSON: {"symbol": "USDJPY", "side": "buy", "lot": 0.01, "sl": null, "tp": null, "slippage": 3}
+EXECUTED ticket=123456 lot=0.01 at 156.234
 ```
 
 Check tick ingestion:
@@ -64,7 +65,7 @@ docker exec -it edgeflow-timescaledb \
 
 ---
 
-## 3 Web Dashboard
+## 3 Web Dashboard
 
 ```bash
 # from project root
@@ -74,17 +75,18 @@ uvicorn main:app --reload
 
 Navigate to `http://127.0.0.1:8000`:
 
-- View **total trades**, **win rate**, **cumulative P&L**
-- Live **equity curve** chart powered by Chart.js + Luxon
-- Navigation panel with toggleable dashboard views
+* View **total trades**, **win rate**, **cumulative P\&L**
+* Live **equity curve** chart powered by Chart.js + Luxon
+* Navigation panel with toggleable dashboard views
 
-Requires:  
-- `backtest/simulated_trades.csv` → generated via `simulate_strategy.py`
-- `equity_data.json` is generated on-demand via backend logic (no manual step)
+Requires:
+
+* `backtest/simulated_trades.csv` → generated via `simulate_strategy.py`
+* `equity_data.json` is generated on-demand via backend logic (no manual step)
 
 ---
 
-## 4 Repo Structure
+## 4 Repo Structure
 
 ```text
 EdgeFlow-Trader/
@@ -110,11 +112,11 @@ EdgeFlow-Trader/
 
 ---
 
-## 5 Dev Roadmap
+## 5 Dev Roadmap
 
 ```mermaid
 graph TD
-  A[Sprint-0 ✔️\nData Pipe] --> B[Sprint-1\nOrder Exec + Risk]
+  A[Sprint-0 ✔️\nData Pipe] --> B[Sprint-1 ✔️\nOrder Exec + Risk]
   B --> C[Sprint-2\nHistorical Loader & Backtester]
   C --> D[Sprint-3\nRule-Based Baseline Bot]
   D --> E[Sprint-4\nML Prototype]
@@ -124,26 +126,26 @@ graph TD
 
 ---
 
-## 6 Links & Docs
+## 6 Links & Docs
 
-* **Protocol spec** – [docs/protocol.md](docs/protocol.md)  
-* **Risk parameters** – [docs/risk-config.yaml](docs/risk-config.yaml)  
-* **Strategy rules** – [docs/strategy-rules.md](docs/strategy-rules.md)  
+* **Protocol spec** – [docs/protocol.md](docs/protocol.md)
+* **Risk parameters** – [docs/risk-config.yaml](docs/risk-config.yaml)
+* **Strategy rules** – [docs/strategy-rules.md](docs/strategy-rules.md)
 * **Technical design log** – [docs/techdoc.md](docs/techdoc.md)
 
 ---
 
-## 7 Branch & Commit Strategy
+## 7 Branch & Commit Strategy
 
-* **`main`** = deployable state (last green sprint).  
-* Feature branches → PR → squash-merge into **`dev`** → fast-forward **`main`** on sprint release.  
+* **`main`** = deployable state (last green sprint).
+* Feature branches → PR → squash-merge into **`dev`** → fast-forward **`main`** on sprint release.
 * Commit prefixes: `feat:`, `fix:`, `doc:`, `refactor:`.
 
 ---
 
-## 8 Next Up 🚀
+## 8 Next Up 🚀
 
-1. **OrderSend implementation** inside the EA (market orders + error handling).  
-2. **Execution-ack loop** – EA writes `executions.csv`; bridge ingests tickets into DB.  
-3. **Risk guard** – enforce rules from `docs/risk-config.yaml` before queuing any order.  
-4. **Optimizer UI** – connect equity improvements to backtest engine.
+1. **Risk guard implementation** in the EA and bridge, enforcing rules from `docs/risk-config.yaml`.
+2. **Backtest sync** – auto-export backtest results into TimescaleDB.
+3. **Optimizer UI** – connect strategy parameters to dashboard frontend.
+4. **Sprint-2 historical loader** for replays + strategy refinement.
