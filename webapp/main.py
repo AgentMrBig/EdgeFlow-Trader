@@ -59,7 +59,7 @@ def index(request: Request):
                 pnl = float(row.get("pnl", 0))
                 equity += pnl
                 equity_points.append({
-                    "x": row["timestamp"],
+                    "x": row["entry_time"],
                     "y": round(equity, 2)
                 })
 
