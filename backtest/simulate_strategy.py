@@ -70,6 +70,14 @@ for i in range(MA_PERIOD + 2, len(candles)):
             "entry_price": now.close,
             "ma": round(ma, 5)
         }
+
+        nearest_level = min(
+            zones['support'] + zones['resistance'],
+            key=lambda level: abs(now.close - level)
+        )
+        print(f"[ENTRY] {now.dt.strftime('%Y-%m-%d %H:%M:%S')} | Price: {now.close:.5f} | Nearest SR: {nearest_level:.5f} | Distance: {abs(now.close - nearest_level):.5f}")
+
+
         entries.append(entry)
 
         # Cluster detection bucketed by minute
