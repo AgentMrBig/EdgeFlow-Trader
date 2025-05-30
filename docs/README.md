@@ -1,4 +1,3 @@
-
 # EdgeFlow Trader
 
 > **Mission:** Transform a discretionary USDJPY scalping edge into a fully-automated, AI-enhanced trading machine that runs 24/5 on MT4.
@@ -129,3 +128,35 @@ EdgeFlow-Trader/
 * **`main`** = stable release after full sprint.
 * Feature → `dev` → squash-merge into `main` when stable.
 * Use tags like `feat:`, `fix:`, `doc:`, `refactor:` in commit messages.
+
+---
+
+## 8 Strategy Improvement Log: Smart Exits & Margin Reality
+
+The most recent simulation improvements were implemented to address several critical issues observed in earlier versions of the strategy engine.
+
+### 🔧 Key Enhancements
+
+- **Margin Stop-Out Simulation**:  
+  The strategy now halts immediately if the margin level drops below 25%, mimicking a real broker margin call.
+  - Prevents unrealistic "survival" of blown accounts
+  - Outputs final equity and halts the simulation
+
+- **Trailing Stop Only After Breakeven**:  
+  Trailing stops are now only activated after a trade is in at least +5 pips of profit.
+
+- **Smart Exit After Decay**:  
+  Trades still in loss after 15 candles are evaluated against support/resistance zones from derived 5-minute data.  
+  - If no S/R is nearby to justify staying in the trade, the position is closed to prevent deepening losses.
+
+### 🧪 Example Run Result
+
+```
+💥 Margin call triggered at 2023-09-27 14:51:00. Account busted. Final equity: $0.45
+Simulation complete. Trades executed: 54
+```
+
+Although not yet profitable, this setup now:
+- Reflects true trade risk and leverage exposure
+- Is better suited for genetic optimization
+- Rejects trades that deteriorate beyond their window of opportunity

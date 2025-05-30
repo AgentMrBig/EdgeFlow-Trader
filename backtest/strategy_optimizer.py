@@ -1,83 +1,81 @@
 
 import random
+import csv
 import matplotlib.pyplot as plt
 from simulate_pnl import simulate_strategy
 
-# Define parameter ranges
-PARAM_SPACE = {
-    "ma_period": (5, 20),
-    "tp_pips": (5, 50),
-    "sl_pips": (5, 50)
-}
+POPULATION_SIZE = 10
+GENERATIONS = 20
+MUTATION_RATE = 0.2
 
-# Generate random individual
-def generate_individual():
+def random_params():
     return {
-        "ma_period": random.randint(*PARAM_SPACE["ma_period"]),
-        "tp_pips": random.randint(*PARAM_SPACE["tp_pips"]),
-        "sl_pips": random.randint(*PARAM_SPACE["sl_pips"])
+        "ma_period": random.randint(5, 20),
+        "tp_pips": random.randint(10, 50),
+        "sl_pips": random.randint(5, 50),
     }
 
-# Mutate individual
-def mutate(individual, mutation_rate=0.2):
-    for key in individual:
-        if random.random() < mutation_rate:
-            individual[key] = random.randint(*PARAM_SPACE[key])
-    return individual
+def mutate(params):
+    new_params = params.copy()
+    if random.random() < MUTATION_RATE:
+        new_params["ma_period"] = random.randint(5, 20)
+    if random.random() < MUTATION_RATE:
+        new_params["tp_pips"] = random.randint(10, 50)
+    if random.random() < MUTATION_RATE:
+        new_params["sl_pips"] = random.randint(5, 50)
+    return new_params
 
-# Crossover two individuals
-def crossover(parent1, parent2):
-    child = {}
-    for key in parent1:
-        child[key] = parent1[key] if random.random() < 0.5 else parent2[key]
-    return child
+def crossover(p1, p2):
+    return {
+        "ma_period": random.choice([p1["ma_period"], p2["ma_period"]]),
+        "tp_pips": random.choice([p1["tp_pips"], p2["tp_pips"]]),
+        "sl_pips": random.choice([p1["sl_pips"], p2["sl_pips"]]),
+    }
 
-# Evaluate fitness by running simulation and returning total PnL
-def evaluate(individual):
-    print(f"Evaluating: {individual}")
+def evaluate(params):
+    print(f"Evaluating: {params}")
     result = simulate_strategy(
-        ma_period=individual["ma_period"],
-        tp_pips=individual["tp_pips"],
-        sl_pips=individual["sl_pips"],
-        silent=True  # Suppress output files for faster GA runs
+        ma_period=params["ma_period"],
+        tp_pips=params["tp_pips"],
+        sl_pips=params["sl_pips"],
+        output_csv="simulated_trades.csv",
+        performance_log="timeblock_profit.csv",
+        equity_curve_png=None,
+        silent=True
     )
-    return result.get("total_pnl", 0)
+    return result.get("total_pnl", 0) if result else 0
 
-# Genetic algorithm main loop
-def evolve(pop_size=10, generations=10):
-    population = [generate_individual() for _ in range(pop_size)]
-    best_fitnesses = []
+def evolve():
+    population = [random_params() for _ in range(POPULATION_SIZE)]
+    history = []
 
-    for gen in range(generations):
-        scores = [(ind, evaluate(ind)) for ind in population]
-        scores.sort(key=lambda x: x[1], reverse=True)
-        best_fitness = scores[0][1]
-        best_fitnesses.append(best_fitness)
-        print(f"Generation {gen+1}: Best PnL = ${best_fitness:.2f}")
+    with open("generation_log.csv", "w", newline="") as logf:
+        writer = csv.writer(logf)
+        writer.writerow(["Generation", "BestPnL", "BestParams"])
 
-        survivors = [s[0] for s in scores[:pop_size // 2]]
-        offspring = [mutate(crossover(random.choice(survivors), random.choice(survivors))) for _ in range(pop_size // 2)]
-        population = survivors + offspring
+        for gen in range(1, GENERATIONS + 1):
+            scores = [(ind, evaluate(ind)) for ind in population]
+            scores.sort(key=lambda x: x[1], reverse=True)
+            best_individual, best_score = scores[0]
+            writer.writerow([gen, best_score, best_individual])
+            print(f"Generation {gen}: Best PnL = ${best_score:.2f} with Params = {best_individual}")
+            history.append(best_score)
 
-    # Plot best fitness per generation
-    plt.figure(figsize=(10, 5))
-    plt.plot(range(1, generations + 1), best_fitnesses, marker="o")
-    plt.title("Best PnL by Generation")
+            next_gen = [best_individual]
+            while len(next_gen) < POPULATION_SIZE:
+                parent1 = random.choice(scores[:5])[0]
+                parent2 = random.choice(scores[:5])[0]
+                child = mutate(crossover(parent1, parent2))
+                next_gen.append(child)
+            population = next_gen
+
+    plt.plot(range(1, GENERATIONS + 1), history, marker="o")
     plt.xlabel("Generation")
     plt.ylabel("Best Total PnL ($)")
+    plt.title("Strategy Optimization Progress")
     plt.grid(True)
-    plt.tight_layout()
-    plt.savefig("genetic_fitness_plot.png")
-    print("✅ Optimization complete. Plot saved as 'genetic_fitness_plot.png'")
+    plt.savefig("optimization_progress.png")
+    print("Optimization progress plot saved to optimization_progress.png")
 
 if __name__ == "__main__":
     evolve()
-    # Log best parameters to CSV
-    with open("best_params_log.csv", "a", newline="") as csvfile:
-        writer = csv.writer(csvfile)
-        if csvfile.tell() == 0:
-            writer.writerow(["generation", "ma_period", "tp_pips", "sl_pips", "pnl"])
-        writer.writerow([gen+1, best_ind['ma_period'], best_ind['tp_pips'], best_ind['sl_pips'], best_score])
-    with open("best_params.json", "w") as jsonfile:
-        json.dump({"generation": gen+1, "params": best_ind, "pnl": best_score}, jsonfile, indent=2)
-    

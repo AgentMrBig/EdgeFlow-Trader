@@ -37,8 +37,15 @@ def summarize_trades(csv_path='simulated_trades.csv'):
     avg_per_week = total_trades / total_weeks
     avg_per_hour = df.groupby('hour').size().mean()
 
-    avg_win = df[df['pnl'] > 0]['pnl'].mean()
-    avg_loss = df[df['pnl'] < 0]['pnl'].mean()
+    total_pnl = df['pnl'].sum()
+    wins = df[df['pnl'] > 0]
+    losses = df[df['pnl'] < 0]
+
+    win_rate = len(wins) / total_trades * 100
+    loss_rate = len(losses) / total_trades * 100
+
+    avg_win = wins['pnl'].mean()
+    avg_loss = losses['pnl'].mean()
     biggest_win = df['pnl'].max()
     biggest_loss = df['pnl'].min()
 
@@ -52,10 +59,13 @@ def summarize_trades(csv_path='simulated_trades.csv'):
     print(f"Average/Day       : {avg_per_day:.2f}")
     print(f"Average/Week      : {avg_per_week:.2f}")
     print(f"Average/Hour      : {avg_per_hour:.2f}")
-    print(f"Average Win       : {avg_win:.2f}")
-    print(f"Average Loss      : {avg_loss:.2f}")
-    print(f"Biggest Win       : {biggest_win:.2f}")
-    print(f"Biggest Loss      : {biggest_loss:.2f}")
+    print(f"Total PnL         : ${total_pnl:.2f}")
+    print(f"Win Rate          : {win_rate:.2f}%")
+    print(f"Loss Rate         : {loss_rate:.2f}%")
+    print(f"Average Win       : ${avg_win:.2f}")
+    print(f"Average Loss      : ${avg_loss:.2f}")
+    print(f"Biggest Win       : ${biggest_win:.2f}")
+    print(f"Biggest Loss      : ${biggest_loss:.2f}")
 
     trades_by_day = df['date'].value_counts().sort_index()
     print("\n📈 Trades Per Day")
@@ -70,10 +80,10 @@ def summarize_trades(csv_path='simulated_trades.csv'):
     print(trades_by_hour)
 
     print("\n🏆 Top 10 Wins")
-    print(df.sort_values(by='pnl', ascending=False).head(10)[['entry_time', 'pnl']])
+    print(wins.sort_values(by='pnl', ascending=False).head(10)[['entry_time', 'pnl']])
 
     print("\n💥 Top 10 Losses")
-    print(df.sort_values(by='pnl').head(10)[['entry_time', 'pnl']])
+    print(losses.sort_values(by='pnl').head(10)[['entry_time', 'pnl']])
 
 if __name__ == "__main__":
     summarize_trades()
