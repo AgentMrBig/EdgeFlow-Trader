@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from starlette.middleware.base import BaseHTTPMiddleware
 import json
 import os
 import pandas as pd
@@ -10,12 +11,26 @@ from datetime import datetime, timedelta
 
 app = FastAPI(title="EdgeFlow Trader")
 
+# === NO CACHE MIDDLEWARE (prevents stale data) ===
+class NoCacheMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        response = await call_next(request)
+        if request.url.path.startswith("/static/") or request.url.path == "/dashboard":
+            response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+            response.headers["Pragma"] = "no-cache"
+            response.headers["Expires"] = "0"
+        return response
+
+app.add_middleware(NoCacheMiddleware)
+
 app.mount("/static", StaticFiles(directory="webapp/static"), name="static")
 templates = Jinja2Templates(directory="webapp/templates")
 
 @app.get("/dashboard", response_class=HTMLResponse)
 async def dashboard(request: Request):
     return templates.TemplateResponse(request, "dashboard.html")
+
+# ... rest of your code stays exactly the same ...
 
 @app.post("/api/run_simulation")
 async def run_simulation(request: Request):
@@ -167,7 +182,7 @@ async def run_simulation(request: Request):
             balance += profit
             
             trades.append({
-                "timestamp": str(current.name),
+                "timestamp": int(current.name.timestamp()),  # ← Unix timestamp (number)
                 "direction": direction,
                 "entry": round(entry_price, 3),
                 "exit": round(exit_price, 3),

@@ -340,11 +340,11 @@
                     </div>
                     <div class="trading-card rounded-2xl px-4 py-3">
                         <div class="text-xs text-[#666]">Max Drawdown</div>
-                        <div class="text-2xl font-bold text-[#ff4444]">-18.4%</div>
+                        <div class="text-2xl font-bold text-[#ff4444]" id="stat-drawdown">-18.4%</div>
                     </div>
                     <div class="trading-card rounded-2xl px-4 py-3">
                         <div class="text-xs text-[#666]">Profit Factor</div>
-                        <div class="text-2xl font-bold">2.84</div>
+                        <div class="text-2xl font-bold" id="stat-profit-factor">2.84</div>
                     </div>
                 </div>
             </div>
@@ -420,7 +420,16 @@
                 }
             }
 
-            data = data.slice(-1440);
+            // Load based on last simulation (default to 7 days if unknown)
+            const lastRange = localStorage.getItem('edgeflow_data_range') || '7';
+            let candleCount = 10080; // 7 days default
+
+            if (lastRange === '1') candleCount = 1440;
+            else if (lastRange === '3') candleCount = 4320;
+            else if (lastRange === '30') candleCount = 43200;
+            else if (lastRange === 'full') candleCount = data.length;
+
+            data = data.slice(-candleCount);
 
             chartInstance = LightweightCharts.createChart(container, {
                 layout: { background: { color: '#0a0a0a' }, textColor: '#888' },
@@ -566,14 +575,14 @@
             try {
                 const res = await fetch('/static/trades.json');
                 tradesData = await res.json();
+
                 tradeMarkers.forEach(m => chartInstance.removeSeries(m));
                 tradeMarkers = [];
 
                 tradesData.forEach(trade => {
-                    const entryTime = Math.floor(new Date(trade.timestamp).getTime() / 1000);
-                    const exitTime = Math.floor(new Date(trade.exit_timestamp).getTime() / 1000);
+                    const entryTime = parseInt(trade.timestamp);
                     const entryPrice = priceDataMap[entryTime] || trade.entry;
-                    const exitPrice = priceDataMap[exitTime] || trade.exit;
+
                     const isWin = trade.result === 'win';
                     const color = isWin ? '#00ff88' : '#ff4444';
                     const isBuy = trade.direction === 'buy';
@@ -583,23 +592,57 @@
                         lineWidth: 0,
                         lineVisible: false,
                         pointMarkersVisible: true,
-                        pointMarkersRadius: 6,
+                        pointMarkersRadius: 7,
                         pointMarkersShape: isBuy ? 'triangleUp' : 'triangleDown',
                         lastValueVisible: false,
                         priceLineVisible: false
                     });
 
                     tradeSeries.setData([
-                        { time: entryTime, value: entryPrice },
-                        { time: exitTime, value: exitPrice }
+                        { time: entryTime, value: entryPrice }
                     ]);
 
                     tradeMarkers.push(tradeSeries);
                 });
 
-                alert(`✅ Loaded ${tradesData.length} trades`);
+                showToast(`✅ Loaded ${tradesData.length} trades`, 'success');
+
+                // Tooltip
+                const tooltip = document.getElementById('tooltip');
+                chartInstance.subscribeCrosshairMove(param => {
+                    if (!param.time || !tradesData.length) {
+                        tooltip.style.display = 'none';
+                        return;
+                    }
+
+                    let closest = null;
+                    let minDist = Infinity;
+
+                    tradesData.forEach(trade => {
+                        const tradeTime = parseInt(trade.timestamp);
+                        const timeDiff = Math.abs(param.time - tradeTime);
+                        if (timeDiff < minDist && timeDiff < 180) {
+                            minDist = timeDiff;
+                            closest = trade;
+                        }
+                    });
+
+                    if (closest && minDist < 180) {
+                        tooltip.innerHTML = `
+                    <strong>${closest.direction.toUpperCase()} Trade</strong><br>
+                    <b>Entry:</b> ${closest.entry}<br>
+                    <b>P&amp;L:</b> <span class="${closest.result}">${closest.profit > 0 ? '+' : ''}${closest.profit}</span>
+                `;
+                        tooltip.style.left = `${param.point.x + 370}px`;
+                        tooltip.style.top = `${param.point.y + 100}px`;
+                        tooltip.style.display = 'block';
+                    } else {
+                        tooltip.style.display = 'none';
+                    }
+                });
+
             } catch (e) {
-                alert("Failed to load trades: " + e.message);
+                showToast("Failed to load trades: " + e.message, 'error');
             }
         }
 
@@ -620,8 +663,15 @@
                 const values = [];
 
                 equityData.forEach(item => {
-                    const time = item.timestamp.split(' ')[1] || item.timestamp;
-                    labels.push(time);
+                    let timeLabel;
+                    if (typeof item.timestamp === 'number') {
+                        timeLabel = new Date(item.timestamp * 1000).toLocaleTimeString([], {
+                            hour: '2-digit', minute: '2-digit'
+                        });
+                    } else {
+                        timeLabel = item.timestamp.split(' ')[1] || item.timestamp;
+                    }
+                    labels.push(timeLabel);
                     values.push(parseFloat(item.balance));
                 });
 
@@ -643,7 +693,10 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        interaction: { intersect: false, mode: 'index' },
+                        interaction: {
+                            intersect: false,
+                            mode: 'nearest'   // ← More forgiving hover
+                        },
                         scales: {
                             x: { ticks: { color: '#666', maxTicksLimit: 8 }, grid: { color: '#222' } },
                             y: { ticks: { color: '#666' }, grid: { color: '#222' } }
@@ -654,8 +707,6 @@
                                 backgroundColor: '#1a1a1a',
                                 borderColor: '#00ff88',
                                 borderWidth: 1,
-                                titleColor: '#ddd',
-                                bodyColor: '#00ff88',
                                 displayColors: false,
                                 callbacks: {
                                     title: (ctx) => `Time: ${ctx[0].label}`,
@@ -666,7 +717,7 @@
                     }
                 });
             } catch (e) {
-                console.error('[Dashboard] Equity curve failed:', e);
+                console.error("Equity curve failed:", e);
             }
         }
 
@@ -757,13 +808,46 @@
 
         async function loadDashboardStats() {
             try {
-                const res = await fetch('/static/trades.json');
+                const res = await fetch('/static/trades.json', {
+                    cache: 'no-store',
+                    headers: { 'Cache-Control': 'no-cache' }
+                });
                 const trades = await res.json();
                 if (trades.length === 0) return;
 
                 const winRate = (trades.filter(t => t.result === 'win').length / trades.length * 100).toFixed(1);
                 const totalPnL = trades.reduce((sum, t) => sum + parseFloat(t.profit), 0);
                 const finalBalance = 100 + totalPnL;
+
+                // Calculate Max Drawdown
+                let peak = 100;
+                let maxDrawdown = 0;
+                let runningBalance = 100;
+
+                trades.forEach(trade => {
+                    runningBalance += parseFloat(trade.profit);
+                    if (runningBalance > peak) peak = runningBalance;
+                    const drawdown = ((peak - runningBalance) / peak) * 100;
+                    if (drawdown > maxDrawdown) maxDrawdown = drawdown;
+                });
+
+                // Calculate Profit Factor
+                let grossProfit = 0;
+                let grossLoss = 0;
+
+                trades.forEach(trade => {
+                    const profit = parseFloat(trade.profit);
+                    if (profit > 0) {
+                        grossProfit += profit;
+                    } else {
+                        grossLoss += Math.abs(profit);
+                    }
+                });
+
+                let profitFactor = grossLoss > 0 ? (grossProfit / grossLoss) : 999;
+                document.getElementById('stat-profit-factor').innerText = profitFactor.toFixed(2);
+
+                document.getElementById('stat-drawdown').innerText = '-' + maxDrawdown.toFixed(1) + '%';
 
                 document.getElementById('account-balance').innerText = formatBalance(finalBalance);
                 document.getElementById('stat-win-rate').innerText = winRate + '%';
