@@ -1,0 +1,83 @@
+<!-- Equity Curve Component -->
+<div class="trading-card rounded-3xl p-4 mt-4">
+  <div class="flex items-center justify-between mb-3 px-2">
+    <div>
+      <div class="font-semibold">Equity Curve</div>
+      <div class="text-xs text-[#666]">Running balance after each trade</div>
+    </div>
+    <div class="text-xs px-3 py-1 bg-[#1a1a1a] rounded-2xl text-[#00ff88]">
+      +$32,987 • 101 trades
+    </div>
+  </div>
+  
+  <div style="height: 280px; position: relative;">
+    <canvas id="equityChart"></canvas>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  async function loadEquityCurve() {
+    try {
+      const res = await fetch('/static/equity_data.json');
+      const trades = await res.json();
+      
+      let equity = 100;
+      const labels = [];
+      const values = [];
+      
+      trades.forEach(trade => {
+        equity += parseFloat(trade.profit || 0);
+        labels.push(new Date(trade.timestamp));
+        values.push(parseFloat(equity.toFixed(2)));
+      });
+      
+      const ctx = document.getElementById('equityChart');
+      
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Account Balance ($)',
+            data: values,
+            borderColor: '#00ff88',
+            borderWidth: 3,
+            tension: 0.2,
+            pointRadius: 0,
+            fill: true,
+            backgroundColor: 'rgba(0, 255, 136, 0.08)'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { 
+              type: 'time',
+              time: { unit: 'hour', tooltipFormat: 'HH:mm' },
+              ticks: { color: '#666' },
+              grid: { color: '#222' }
+            },
+            y: { 
+              ticks: { color: '#666' },
+              grid: { color: '#222' }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: { mode: 'index', intersect: false }
+          }
+        }
+      });
+    } catch (e) {
+      console.log("Equity data not found or error loading");
+    }
+  }
+  
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadEquityCurve);
+  } else {
+    loadEquityCurve();
+  }
+</script>

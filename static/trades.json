@@ -1,0 +1,1012 @@
+[
+  {
+    "timestamp": "2024-08-15 22:16:00",
+    "direction": "sell",
+    "entry": 148.94755,
+    "exit": 148.902,
+    "lot_size": 0.42,
+    "result": "win",
+    "profit": 19.13,
+    "exit_timestamp": "2024-08-15 22:28:00"
+  },
+  {
+    "timestamp": "2024-08-15 22:17:00",
+    "direction": "sell",
+    "entry": 148.92555,
+    "exit": 148.883,
+    "lot_size": 0.49,
+    "result": "win",
+    "profit": 20.85,
+    "exit_timestamp": "2024-08-15 22:29:00"
+  },
+  {
+    "timestamp": "2024-08-15 22:18:00",
+    "direction": "sell",
+    "entry": 148.92655,
+    "exit": 148.888,
+    "lot_size": 0.58,
+    "result": "win",
+    "profit": 22.36,
+    "exit_timestamp": "2024-08-15 22:30:00"
+  },
+  {
+    "timestamp": "2024-08-15 22:19:00",
+    "direction": "sell",
+    "entry": 148.92655,
+    "exit": 148.91,
+    "lot_size": 0.71,
+    "result": "win",
+    "profit": 11.75,
+    "exit_timestamp": "2024-08-15 22:31:00"
+  },
+  {
+    "timestamp": "2024-08-15 22:20:00",
+    "direction": "sell",
+    "entry": 148.93155,
+    "exit": 148.911,
+    "lot_size": 0.78,
+    "result": "win",
+    "profit": 16.03,
+    "exit_timestamp": "2024-08-15 22:32:00"
+  },
+  {
+    "timestamp": "2024-08-15 22:22:00",
+    "direction": "sell",
+    "entry": 148.91055,
+    "exit": 148.94,
+    "lot_size": 0.88,
+    "result": "loss",
+    "profit": -25.92,
+    "exit_timestamp": "2024-08-15 22:34:00"
+  },
+  {
+    "timestamp": "2024-08-15 22:25:00",
+    "direction": "sell",
+    "entry": 148.86855,
+    "exit": 148.91037,
+    "lot_size": 0.78,
+    "result": "loss",
+    "profit": -32.62,
+    "exit_timestamp": "2024-08-15 22:28:00"
+  },
+  {
+    "timestamp": "2024-08-15 23:05:00",
+    "direction": "sell",
+    "entry": 148.90955,
+    "exit": 148.80521,
+    "lot_size": 0.73,
+    "result": "win",
+    "profit": 76.17,
+    "exit_timestamp": "2024-08-15 23:13:00"
+  },
+  {
+    "timestamp": "2024-08-15 23:07:00",
+    "direction": "sell",
+    "entry": 148.89555,
+    "exit": 148.79575,
+    "lot_size": 1.21,
+    "result": "win",
+    "profit": 120.76,
+    "exit_timestamp": "2024-08-15 23:13:00"
+  },
+  {
+    "timestamp": "2024-08-15 23:09:00",
+    "direction": "sell",
+    "entry": 148.87855,
+    "exit": 148.91096,
+    "lot_size": 2.0,
+    "result": "loss",
+    "profit": -64.81,
+    "exit_timestamp": "2024-08-15 23:11:00"
+  },
+  {
+    "timestamp": "2024-08-15 23:11:00",
+    "direction": "sell",
+    "entry": 148.88555,
+    "exit": 148.79158,
+    "lot_size": 1.62,
+    "result": "win",
+    "profit": 152.22,
+    "exit_timestamp": "2024-08-15 23:13:00"
+  },
+  {
+    "timestamp": "2024-08-15 23:13:00",
+    "direction": "sell",
+    "entry": 148.83755,
+    "exit": 148.793,
+    "lot_size": 2.24,
+    "result": "win",
+    "profit": 99.79,
+    "exit_timestamp": "2024-08-15 23:25:00"
+  },
+  {
+    "timestamp": "2024-08-15 23:14:00",
+    "direction": "sell",
+    "entry": 148.82155,
+    "exit": 148.8582,
+    "lot_size": 2.78,
+    "result": "loss",
+    "profit": -101.9,
+    "exit_timestamp": "2024-08-15 23:19:00"
+  },
+  {
+    "timestamp": "2024-08-15 23:17:00",
+    "direction": "sell",
+    "entry": 148.82555,
+    "exit": 148.86299,
+    "lot_size": 2.18,
+    "result": "loss",
+    "profit": -81.61,
+    "exit_timestamp": "2024-08-15 23:19:00"
+  },
+  {
+    "timestamp": "2024-08-16 00:44:00",
+    "direction": "buy",
+    "entry": 148.95545,
+    "exit": 148.93611,
+    "lot_size": 3.36,
+    "result": "loss",
+    "profit": -64.99,
+    "exit_timestamp": "2024-08-16 00:47:00"
+  },
+  {
+    "timestamp": "2024-08-16 00:45:00",
+    "direction": "buy",
+    "entry": 148.95145,
+    "exit": 148.93164,
+    "lot_size": 2.64,
+    "result": "loss",
+    "profit": -52.31,
+    "exit_timestamp": "2024-08-16 00:57:00"
+  },
+  {
+    "timestamp": "2024-08-16 01:10:00",
+    "direction": "buy",
+    "entry": 148.92645,
+    "exit": 148.90846,
+    "lot_size": 2.33,
+    "result": "loss",
+    "profit": -41.91,
+    "exit_timestamp": "2024-08-16 01:13:00"
+  },
+  {
+    "timestamp": "2024-08-16 01:11:00",
+    "direction": "buy",
+    "entry": 148.92745,
+    "exit": 148.90929,
+    "lot_size": 1.86,
+    "result": "loss",
+    "profit": -33.78,
+    "exit_timestamp": "2024-08-16 01:13:00"
+  },
+  {
+    "timestamp": "2024-08-16 01:49:00",
+    "direction": "buy",
+    "entry": 148.92645,
+    "exit": 148.955,
+    "lot_size": 1.36,
+    "result": "win",
+    "profit": 38.83,
+    "exit_timestamp": "2024-08-16 02:01:00"
+  },
+  {
+    "timestamp": "2024-08-16 01:50:00",
+    "direction": "buy",
+    "entry": 148.92345,
+    "exit": 148.955,
+    "lot_size": 1.79,
+    "result": "win",
+    "profit": 56.47,
+    "exit_timestamp": "2024-08-16 02:02:00"
+  },
+  {
+    "timestamp": "2024-08-16 01:51:00",
+    "direction": "buy",
+    "entry": 148.92245,
+    "exit": 148.967,
+    "lot_size": 2.46,
+    "result": "win",
+    "profit": 109.59,
+    "exit_timestamp": "2024-08-16 02:03:00"
+  },
+  {
+    "timestamp": "2024-08-16 01:57:00",
+    "direction": "buy",
+    "entry": 148.94545,
+    "exit": 148.92713,
+    "lot_size": 3.67,
+    "result": "loss",
+    "profit": -67.22,
+    "exit_timestamp": "2024-08-16 01:59:00"
+  },
+  {
+    "timestamp": "2024-08-16 01:58:00",
+    "direction": "buy",
+    "entry": 148.93945,
+    "exit": 148.92114,
+    "lot_size": 2.95,
+    "result": "loss",
+    "profit": -54.02,
+    "exit_timestamp": "2024-08-16 01:59:00"
+  },
+  {
+    "timestamp": "2024-08-16 02:19:00",
+    "direction": "buy",
+    "entry": 149.04045,
+    "exit": 149.02229,
+    "lot_size": 2.4,
+    "result": "loss",
+    "profit": -43.57,
+    "exit_timestamp": "2024-08-16 02:20:00"
+  },
+  {
+    "timestamp": "2024-08-16 02:22:00",
+    "direction": "buy",
+    "entry": 149.03245,
+    "exit": 149.01138,
+    "lot_size": 1.67,
+    "result": "loss",
+    "profit": -35.19,
+    "exit_timestamp": "2024-08-16 02:23:00"
+  },
+  {
+    "timestamp": "2024-08-16 02:37:00",
+    "direction": "buy",
+    "entry": 148.96045,
+    "exit": 148.93594,
+    "lot_size": 1.15,
+    "result": "loss",
+    "profit": -28.18,
+    "exit_timestamp": "2024-08-16 02:39:00"
+  },
+  {
+    "timestamp": "2024-08-16 03:04:00",
+    "direction": "sell",
+    "entry": 148.92155,
+    "exit": 148.94804,
+    "lot_size": 0.86,
+    "result": "loss",
+    "profit": -22.78,
+    "exit_timestamp": "2024-08-16 03:06:00"
+  },
+  {
+    "timestamp": "2024-08-16 03:21:00",
+    "direction": "buy",
+    "entry": 148.97645,
+    "exit": 149.035,
+    "lot_size": 0.64,
+    "result": "win",
+    "profit": 37.47,
+    "exit_timestamp": "2024-08-16 03:33:00"
+  },
+  {
+    "timestamp": "2024-08-16 03:22:00",
+    "direction": "buy",
+    "entry": 148.97245,
+    "exit": 149.023,
+    "lot_size": 0.91,
+    "result": "win",
+    "profit": 46.0,
+    "exit_timestamp": "2024-08-16 03:34:00"
+  },
+  {
+    "timestamp": "2024-08-16 03:30:00",
+    "direction": "buy",
+    "entry": 148.99745,
+    "exit": 149.08661,
+    "lot_size": 1.15,
+    "result": "win",
+    "profit": 102.53,
+    "exit_timestamp": "2024-08-16 03:38:00"
+  },
+  {
+    "timestamp": "2024-08-16 03:32:00",
+    "direction": "buy",
+    "entry": 149.01945,
+    "exit": 149.011,
+    "lot_size": 1.79,
+    "result": "loss",
+    "profit": -15.13,
+    "exit_timestamp": "2024-08-16 03:44:00"
+  },
+  {
+    "timestamp": "2024-08-16 03:38:00",
+    "direction": "buy",
+    "entry": 149.07545,
+    "exit": 149.04461,
+    "lot_size": 1.69,
+    "result": "loss",
+    "profit": -52.13,
+    "exit_timestamp": "2024-08-16 03:41:00"
+  },
+  {
+    "timestamp": "2024-08-16 04:15:00",
+    "direction": "buy",
+    "entry": 148.99245,
+    "exit": 148.96222,
+    "lot_size": 1.38,
+    "result": "loss",
+    "profit": -41.72,
+    "exit_timestamp": "2024-08-16 04:16:00"
+  },
+  {
+    "timestamp": "2024-08-16 04:30:00",
+    "direction": "sell",
+    "entry": 148.92455,
+    "exit": 148.9543,
+    "lot_size": 1.13,
+    "result": "loss",
+    "profit": -33.61,
+    "exit_timestamp": "2024-08-16 04:31:00"
+  },
+  {
+    "timestamp": "2024-08-16 04:53:00",
+    "direction": "sell",
+    "entry": 148.88055,
+    "exit": 148.78007,
+    "lot_size": 0.79,
+    "result": "win",
+    "profit": 79.38,
+    "exit_timestamp": "2024-08-16 05:03:00"
+  },
+  {
+    "timestamp": "2024-08-16 04:54:00",
+    "direction": "sell",
+    "entry": 148.87755,
+    "exit": 148.77834,
+    "lot_size": 1.26,
+    "result": "win",
+    "profit": 125.01,
+    "exit_timestamp": "2024-08-16 05:03:00"
+  },
+  {
+    "timestamp": "2024-08-16 04:55:00",
+    "direction": "sell",
+    "entry": 148.87955,
+    "exit": 148.78174,
+    "lot_size": 2.02,
+    "result": "win",
+    "profit": 197.57,
+    "exit_timestamp": "2024-08-16 05:03:00"
+  },
+  {
+    "timestamp": "2024-08-16 04:56:00",
+    "direction": "sell",
+    "entry": 148.89055,
+    "exit": 148.7945,
+    "lot_size": 3.25,
+    "result": "win",
+    "profit": 312.15,
+    "exit_timestamp": "2024-08-16 05:03:00"
+  },
+  {
+    "timestamp": "2024-08-16 04:58:00",
+    "direction": "sell",
+    "entry": 148.86955,
+    "exit": 148.77395,
+    "lot_size": 5.15,
+    "result": "win",
+    "profit": 492.35,
+    "exit_timestamp": "2024-08-16 05:04:00"
+  },
+  {
+    "timestamp": "2024-08-16 05:01:00",
+    "direction": "sell",
+    "entry": 148.84155,
+    "exit": 148.73948,
+    "lot_size": 7.62,
+    "result": "win",
+    "profit": 777.79,
+    "exit_timestamp": "2024-08-16 05:10:00"
+  },
+  {
+    "timestamp": "2024-08-16 05:02:00",
+    "direction": "sell",
+    "entry": 148.83855,
+    "exit": 148.73786,
+    "lot_size": 12.2,
+    "result": "win",
+    "profit": 1228.45,
+    "exit_timestamp": "2024-08-16 05:11:00"
+  },
+  {
+    "timestamp": "2024-08-16 05:04:00",
+    "direction": "sell",
+    "entry": 148.78355,
+    "exit": 148.82074,
+    "lot_size": 17.79,
+    "result": "loss",
+    "profit": -661.69,
+    "exit_timestamp": "2024-08-16 05:06:00"
+  },
+  {
+    "timestamp": "2024-08-16 05:05:00",
+    "direction": "sell",
+    "entry": 148.81955,
+    "exit": 148.7094,
+    "lot_size": 14.14,
+    "result": "win",
+    "profit": 1557.57,
+    "exit_timestamp": "2024-08-16 05:14:00"
+  },
+  {
+    "timestamp": "2024-08-16 05:06:00",
+    "direction": "sell",
+    "entry": 148.79655,
+    "exit": 148.6847,
+    "lot_size": 21.99,
+    "result": "win",
+    "profit": 2459.66,
+    "exit_timestamp": "2024-08-16 05:14:00"
+  },
+  {
+    "timestamp": "2024-08-16 05:16:00",
+    "direction": "sell",
+    "entry": 148.69755,
+    "exit": 148.73925,
+    "lot_size": 31.82,
+    "result": "loss",
+    "profit": -1326.76,
+    "exit_timestamp": "2024-08-16 05:21:00"
+  },
+  {
+    "timestamp": "2024-08-16 05:17:00",
+    "direction": "sell",
+    "entry": 148.69255,
+    "exit": 148.73328,
+    "lot_size": 26.12,
+    "result": "loss",
+    "profit": -1063.82,
+    "exit_timestamp": "2024-08-16 05:21:00"
+  },
+  {
+    "timestamp": "2024-08-16 05:57:00",
+    "direction": "sell",
+    "entry": 148.63555,
+    "exit": 148.66966,
+    "lot_size": 24.96,
+    "result": "loss",
+    "profit": -851.44,
+    "exit_timestamp": "2024-08-16 06:06:00"
+  },
+  {
+    "timestamp": "2024-08-16 06:00:00",
+    "direction": "sell",
+    "entry": 148.62955,
+    "exit": 148.66387,
+    "lot_size": 19.92,
+    "result": "loss",
+    "profit": -683.74,
+    "exit_timestamp": "2024-08-16 06:04:00"
+  },
+  {
+    "timestamp": "2024-08-16 06:46:00",
+    "direction": "sell",
+    "entry": 148.57955,
+    "exit": 148.53,
+    "lot_size": 18.57,
+    "result": "win",
+    "profit": 920.14,
+    "exit_timestamp": "2024-08-16 06:58:00"
+  },
+  {
+    "timestamp": "2024-08-16 06:48:00",
+    "direction": "sell",
+    "entry": 148.56455,
+    "exit": 148.547,
+    "lot_size": 25.08,
+    "result": "win",
+    "profit": 440.15,
+    "exit_timestamp": "2024-08-16 07:00:00"
+  },
+  {
+    "timestamp": "2024-08-16 06:49:00",
+    "direction": "sell",
+    "entry": 148.56555,
+    "exit": 148.55,
+    "lot_size": 29.54,
+    "result": "win",
+    "profit": 459.35,
+    "exit_timestamp": "2024-08-16 07:01:00"
+  },
+  {
+    "timestamp": "2024-08-16 06:50:00",
+    "direction": "sell",
+    "entry": 148.57055,
+    "exit": 148.547,
+    "lot_size": 33.91,
+    "result": "win",
+    "profit": 798.58,
+    "exit_timestamp": "2024-08-16 07:02:00"
+  },
+  {
+    "timestamp": "2024-08-16 06:54:00",
+    "direction": "sell",
+    "entry": 148.54855,
+    "exit": 148.57681,
+    "lot_size": 37.6,
+    "result": "loss",
+    "profit": -1062.63,
+    "exit_timestamp": "2024-08-16 07:04:00"
+  },
+  {
+    "timestamp": "2024-08-16 06:57:00",
+    "direction": "sell",
+    "entry": 148.53355,
+    "exit": 148.56054,
+    "lot_size": 31.59,
+    "result": "loss",
+    "profit": -852.77,
+    "exit_timestamp": "2024-08-16 07:00:00"
+  },
+  {
+    "timestamp": "2024-08-16 07:12:00",
+    "direction": "sell",
+    "entry": 148.47455,
+    "exit": 148.50561,
+    "lot_size": 22.1,
+    "result": "loss",
+    "profit": -686.41,
+    "exit_timestamp": "2024-08-16 07:15:00"
+  },
+  {
+    "timestamp": "2024-08-16 07:13:00",
+    "direction": "sell",
+    "entry": 148.47555,
+    "exit": 148.50742,
+    "lot_size": 17.3,
+    "result": "loss",
+    "profit": -551.4,
+    "exit_timestamp": "2024-08-16 07:15:00"
+  },
+  {
+    "timestamp": "2024-08-16 07:35:00",
+    "direction": "sell",
+    "entry": 148.36455,
+    "exit": 148.25781,
+    "lot_size": 12.18,
+    "result": "win",
+    "profit": 1300.09,
+    "exit_timestamp": "2024-08-16 07:47:00"
+  },
+  {
+    "timestamp": "2024-08-16 07:36:00",
+    "direction": "sell",
+    "entry": 148.37155,
+    "exit": 148.26927,
+    "lot_size": 20.07,
+    "result": "win",
+    "profit": 2052.83,
+    "exit_timestamp": "2024-08-16 07:42:00"
+  },
+  {
+    "timestamp": "2024-08-16 07:37:00",
+    "direction": "sell",
+    "entry": 148.37655,
+    "exit": 148.27772,
+    "lot_size": 32.8,
+    "result": "win",
+    "profit": 3241.66,
+    "exit_timestamp": "2024-08-16 07:42:00"
+  },
+  {
+    "timestamp": "2024-08-16 07:38:00",
+    "direction": "sell",
+    "entry": 148.36455,
+    "exit": 148.39799,
+    "lot_size": 52.16,
+    "result": "loss",
+    "profit": -1744.24,
+    "exit_timestamp": "2024-08-16 07:39:00"
+  },
+  {
+    "timestamp": "2024-08-16 07:42:00",
+    "direction": "sell",
+    "entry": 148.31355,
+    "exit": 148.20071,
+    "lot_size": 36.44,
+    "result": "win",
+    "profit": 4111.82,
+    "exit_timestamp": "2024-08-16 07:48:00"
+  },
+  {
+    "timestamp": "2024-08-16 07:43:00",
+    "direction": "sell",
+    "entry": 148.30055,
+    "exit": 148.18575,
+    "lot_size": 56.57,
+    "result": "win",
+    "profit": 6494.42,
+    "exit_timestamp": "2024-08-16 07:49:00"
+  },
+  {
+    "timestamp": "2024-08-16 07:44:00",
+    "direction": "sell",
+    "entry": 148.30455,
+    "exit": 148.19341,
+    "lot_size": 92.29,
+    "result": "win",
+    "profit": 10257.32,
+    "exit_timestamp": "2024-08-16 07:48:00"
+  },
+  {
+    "timestamp": "2024-08-16 07:46:00",
+    "direction": "sell",
+    "entry": 148.27855,
+    "exit": 148.1672,
+    "lot_size": 100.0,
+    "result": "win",
+    "profit": 11134.54,
+    "exit_timestamp": "2024-08-16 07:50:00"
+  },
+  {
+    "timestamp": "2024-08-16 07:51:00",
+    "direction": "sell",
+    "entry": 148.17955,
+    "exit": 148.22347,
+    "lot_size": 100.0,
+    "result": "loss",
+    "profit": -4391.78,
+    "exit_timestamp": "2024-08-16 07:53:00"
+  },
+  {
+    "timestamp": "2024-08-16 07:52:00",
+    "direction": "sell",
+    "entry": 148.17255,
+    "exit": 148.21495,
+    "lot_size": 100.0,
+    "result": "loss",
+    "profit": -4239.87,
+    "exit_timestamp": "2024-08-16 07:53:00"
+  },
+  {
+    "timestamp": "2024-08-16 08:16:00",
+    "direction": "sell",
+    "entry": 148.05855,
+    "exit": 148.10628,
+    "lot_size": 100.0,
+    "result": "loss",
+    "profit": -4772.97,
+    "exit_timestamp": "2024-08-16 08:27:00"
+  },
+  {
+    "timestamp": "2024-08-16 08:18:00",
+    "direction": "sell",
+    "entry": 148.06655,
+    "exit": 148.11478,
+    "lot_size": 100.0,
+    "result": "loss",
+    "profit": -4822.59,
+    "exit_timestamp": "2024-08-16 08:28:00"
+  },
+  {
+    "timestamp": "2024-08-16 08:43:00",
+    "direction": "sell",
+    "entry": 147.99355,
+    "exit": 148.04429,
+    "lot_size": 81.52,
+    "result": "loss",
+    "profit": -4136.28,
+    "exit_timestamp": "2024-08-16 08:52:00"
+  },
+  {
+    "timestamp": "2024-08-16 08:46:00",
+    "direction": "sell",
+    "entry": 147.96355,
+    "exit": 148.01965,
+    "lot_size": 59.16,
+    "result": "loss",
+    "profit": -3318.92,
+    "exit_timestamp": "2024-08-16 08:51:00"
+  },
+  {
+    "timestamp": "2024-08-16 09:12:00",
+    "direction": "sell",
+    "entry": 147.77155,
+    "exit": 147.84401,
+    "lot_size": 36.78,
+    "result": "loss",
+    "profit": -2665.11,
+    "exit_timestamp": "2024-08-16 09:20:00"
+  },
+  {
+    "timestamp": "2024-08-16 09:14:00",
+    "direction": "sell",
+    "entry": 147.75955,
+    "exit": 147.83364,
+    "lot_size": 28.83,
+    "result": "loss",
+    "profit": -2136.03,
+    "exit_timestamp": "2024-08-16 09:20:00"
+  },
+  {
+    "timestamp": "2024-08-16 09:42:00",
+    "direction": "sell",
+    "entry": 147.71355,
+    "exit": 147.77577,
+    "lot_size": 27.47,
+    "result": "loss",
+    "profit": -1709.14,
+    "exit_timestamp": "2024-08-16 09:52:00"
+  },
+  {
+    "timestamp": "2024-08-16 09:43:00",
+    "direction": "sell",
+    "entry": 147.68255,
+    "exit": 147.74493,
+    "lot_size": 21.96,
+    "result": "loss",
+    "profit": -1369.82,
+    "exit_timestamp": "2024-08-16 09:44:00"
+  },
+  {
+    "timestamp": "2024-08-16 10:46:00",
+    "direction": "buy",
+    "entry": 148.06545,
+    "exit": 147.99806,
+    "lot_size": 16.3,
+    "result": "loss",
+    "profit": -1098.53,
+    "exit_timestamp": "2024-08-16 10:50:00"
+  },
+  {
+    "timestamp": "2024-08-16 10:47:00",
+    "direction": "buy",
+    "entry": 148.07045,
+    "exit": 148.00303,
+    "lot_size": 13.06,
+    "result": "loss",
+    "profit": -880.51,
+    "exit_timestamp": "2024-08-16 10:50:00"
+  },
+  {
+    "timestamp": "2024-08-16 12:08:00",
+    "direction": "buy",
+    "entry": 148.15745,
+    "exit": 148.239,
+    "lot_size": 18.61,
+    "result": "win",
+    "profit": 1517.65,
+    "exit_timestamp": "2024-08-16 12:20:00"
+  },
+  {
+    "timestamp": "2024-08-16 12:14:00",
+    "direction": "buy",
+    "entry": 148.19945,
+    "exit": 148.267,
+    "lot_size": 28.12,
+    "result": "win",
+    "profit": 1899.51,
+    "exit_timestamp": "2024-08-16 12:26:00"
+  },
+  {
+    "timestamp": "2024-08-16 12:15:00",
+    "direction": "buy",
+    "entry": 148.19745,
+    "exit": 148.209,
+    "lot_size": 39.77,
+    "result": "win",
+    "profit": 459.34,
+    "exit_timestamp": "2024-08-16 12:27:00"
+  },
+  {
+    "timestamp": "2024-08-16 12:39:00",
+    "direction": "buy",
+    "entry": 148.15145,
+    "exit": 148.11947,
+    "lot_size": 45.81,
+    "result": "loss",
+    "profit": -1464.78,
+    "exit_timestamp": "2024-08-16 12:46:00"
+  },
+  {
+    "timestamp": "2024-08-16 12:58:00",
+    "direction": "buy",
+    "entry": 148.16545,
+    "exit": 148.13789,
+    "lot_size": 42.57,
+    "result": "loss",
+    "profit": -1173.24,
+    "exit_timestamp": "2024-08-16 13:00:00"
+  },
+  {
+    "timestamp": "2024-08-16 13:16:00",
+    "direction": "sell",
+    "entry": 148.05855,
+    "exit": 148.013,
+    "lot_size": 36.9,
+    "result": "win",
+    "profit": 1680.79,
+    "exit_timestamp": "2024-08-16 13:28:00"
+  },
+  {
+    "timestamp": "2024-08-16 13:18:00",
+    "direction": "sell",
+    "entry": 148.05655,
+    "exit": 148.014,
+    "lot_size": 51.25,
+    "result": "win",
+    "profit": 2180.69,
+    "exit_timestamp": "2024-08-16 13:30:00"
+  },
+  {
+    "timestamp": "2024-08-16 13:19:00",
+    "direction": "sell",
+    "entry": 148.04955,
+    "exit": 148.024,
+    "lot_size": 69.6,
+    "result": "win",
+    "profit": 1778.28,
+    "exit_timestamp": "2024-08-16 13:31:00"
+  },
+  {
+    "timestamp": "2024-08-16 13:53:00",
+    "direction": "sell",
+    "entry": 147.87855,
+    "exit": 147.81878,
+    "lot_size": 100.0,
+    "result": "win",
+    "profit": 5977.03,
+    "exit_timestamp": "2024-08-16 13:58:00"
+  },
+  {
+    "timestamp": "2024-08-16 13:54:00",
+    "direction": "sell",
+    "entry": 147.87455,
+    "exit": 147.81611,
+    "lot_size": 100.0,
+    "result": "win",
+    "profit": 5844.03,
+    "exit_timestamp": "2024-08-16 13:59:00"
+  },
+  {
+    "timestamp": "2024-08-16 13:55:00",
+    "direction": "sell",
+    "entry": 147.87855,
+    "exit": 147.82226,
+    "lot_size": 100.0,
+    "result": "win",
+    "profit": 5629.1,
+    "exit_timestamp": "2024-08-16 13:58:00"
+  },
+  {
+    "timestamp": "2024-08-16 13:59:00",
+    "direction": "sell",
+    "entry": 147.82355,
+    "exit": 147.7604,
+    "lot_size": 100.0,
+    "result": "win",
+    "profit": 6315.43,
+    "exit_timestamp": "2024-08-16 14:08:00"
+  },
+  {
+    "timestamp": "2024-08-16 14:00:00",
+    "direction": "sell",
+    "entry": 147.82755,
+    "exit": 147.7678,
+    "lot_size": 100.0,
+    "result": "win",
+    "profit": 5975.4,
+    "exit_timestamp": "2024-08-16 14:08:00"
+  },
+  {
+    "timestamp": "2024-08-16 14:36:00",
+    "direction": "sell",
+    "entry": 147.72455,
+    "exit": 147.74502,
+    "lot_size": 100.0,
+    "result": "loss",
+    "profit": -2047.17,
+    "exit_timestamp": "2024-08-16 14:38:00"
+  },
+  {
+    "timestamp": "2024-08-16 14:37:00",
+    "direction": "sell",
+    "entry": 147.73055,
+    "exit": 147.75016,
+    "lot_size": 100.0,
+    "result": "loss",
+    "profit": -1960.59,
+    "exit_timestamp": "2024-08-16 14:38:00"
+  },
+  {
+    "timestamp": "2024-08-16 15:08:00",
+    "direction": "sell",
+    "entry": 147.77955,
+    "exit": 147.72198,
+    "lot_size": 100.0,
+    "result": "win",
+    "profit": 5756.74,
+    "exit_timestamp": "2024-08-16 15:13:00"
+  },
+  {
+    "timestamp": "2024-08-16 15:18:00",
+    "direction": "sell",
+    "entry": 147.68255,
+    "exit": 147.70592,
+    "lot_size": 100.0,
+    "result": "loss",
+    "profit": -2337.05,
+    "exit_timestamp": "2024-08-16 15:20:00"
+  },
+  {
+    "timestamp": "2024-08-16 15:58:00",
+    "direction": "sell",
+    "entry": 147.68855,
+    "exit": 147.70652,
+    "lot_size": 100.0,
+    "result": "loss",
+    "profit": -1797.02,
+    "exit_timestamp": "2024-08-16 16:05:00"
+  },
+  {
+    "timestamp": "2024-08-16 16:20:00",
+    "direction": "sell",
+    "entry": 147.67555,
+    "exit": 147.69105,
+    "lot_size": 100.0,
+    "result": "loss",
+    "profit": -1550.45,
+    "exit_timestamp": "2024-08-16 16:25:00"
+  },
+  {
+    "timestamp": "2024-08-16 16:21:00",
+    "direction": "sell",
+    "entry": 147.67555,
+    "exit": 147.69062,
+    "lot_size": 100.0,
+    "result": "loss",
+    "profit": -1507.2,
+    "exit_timestamp": "2024-08-16 16:25:00"
+  },
+  {
+    "timestamp": "2024-08-16 16:36:00",
+    "direction": "sell",
+    "entry": 147.68755,
+    "exit": 147.6435,
+    "lot_size": 100.0,
+    "result": "win",
+    "profit": 4405.11,
+    "exit_timestamp": "2024-08-16 16:48:00"
+  },
+  {
+    "timestamp": "2024-08-16 16:37:00",
+    "direction": "sell",
+    "entry": 147.68455,
+    "exit": 147.69925,
+    "lot_size": 100.0,
+    "result": "loss",
+    "profit": -1469.74,
+    "exit_timestamp": "2024-08-16 16:41:00"
+  },
+  {
+    "timestamp": "2024-08-16 16:38:00",
+    "direction": "sell",
+    "entry": 147.67855,
+    "exit": 147.69342,
+    "lot_size": 100.0,
+    "result": "loss",
+    "profit": -1487.26,
+    "exit_timestamp": "2024-08-16 16:40:00"
+  },
+  {
+    "timestamp": "2024-08-16 16:56:00",
+    "direction": "sell",
+    "entry": 147.58555,
+    "exit": 147.60129,
+    "lot_size": 100.0,
+    "result": "loss",
+    "profit": -1574.43,
+    "exit_timestamp": "2024-08-16 17:00:00"
+  },
+  {
+    "timestamp": "2024-08-16 16:57:00",
+    "direction": "sell",
+    "entry": 147.58655,
+    "exit": 147.60169,
+    "lot_size": 100.0,
+    "result": "loss",
+    "profit": -1513.75,
+    "exit_timestamp": "2024-08-16 17:00:00"
+  }
+]

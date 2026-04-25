@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>EdgeFlow - TradingView Style</title>
+  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+  <style>
+    body { background: #0f0f0f; color: #eee; margin: 0; padding: 10px; font-family: 'Segoe UI', sans-serif; }
+    h1 { color: #00ff88; }
+    #chart { width: 100%; height: 820px; background: #1a1a1a; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h1>USD/JPY 1m • EdgeFlow Bot (TradingView Style)</h1>
+  <div id="chart"></div>
+
+  <script>
+    Promise.all([
+      fetch('static/usdjpy_m1.csv').then(r => r.text()).catch(() => ""),
+      fetch('static/equity_data.json').then(r => r.json()).catch(() => [])
+    ]).then(([csvText, trades]) => {
+      const chart = LightweightCharts.createChart(document.getElementById('chart'), {
+        layout: { background: { color: '#1a1a1a' }, textColor: '#ddd' },
+        grid: { vertLines: { color: '#333' }, horzLines: { color: '#333' } },
+        crosshair: { mode: LightweightCharts.CrosshairMode.Magnet },
+        timeScale: { timeVisible: true, secondsVisible: false }
+      });
+
+      // Real Candlesticks
+      if (csvText) {
+        const lines = csvText.trim().split('\n');
+        const candles = [];
+        for (let i = 1; i < lines.length && i < 2000; i++) {
+          const cols = lines[i].split(',');
+          if (cols.length >= 6) {
+            candles.push({
+              time: cols[0] + ' ' + cols[1],
+              open: parseFloat(cols[2]),
+              high: parseFloat(cols[3]),
+              low: parseFloat(cols[4]),
+              close: parseFloat(cols[5])
+            });
+          }
+        }
+        const candleSeries = chart.addCandlestickSeries({
+          upColor: '#00ff88',
+          downColor: '#ff4444',
+          wickUpColor: '#00ff88',
+          wickDownColor: '#ff4444'
+        });
+        candleSeries.setData(candles);
+      }
+
+      // Equity curve + Trade markers
+      if (trades && trades.length > 0) {
+        let equity = 100.0;
+        const equityData = trades.map(trade => {
+          equity += parseFloat(trade.profit || 0);
+          return { time: trade.timestamp.replace(' ', 'T'), value: parseFloat(equity.toFixed(2)) };
+        });
+
+        const equitySeries = chart.addLineSeries({ color: '#00ff88', lineWidth: 3 });
+        equitySeries.setData(equityData);
+
+        trades.forEach(trade => {
+          const color = trade.result === 'win' ? '#00ff88' : '#ff4444';
+          equitySeries.createPriceLine({
+            price: parseFloat(trade.entry),
+            color: color,
+            lineWidth: 2,
+            lineStyle: 2,
+            axisLabelVisible: true,
+            title: `${trade.direction.toUpperCase()} ${trade.lot_size} (${trade.result})`
+          });
+        });
+      }
+
+      chart.timeScale().fitContent();
+      console.log(`✅ Loaded ${trades ? trades.length : 0} trades + candles`);
+    }).catch(err => console.error("Load error:", err));
+  </script>
+</body>
+</html>

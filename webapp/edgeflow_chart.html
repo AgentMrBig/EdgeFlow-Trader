@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>EdgeFlow - USD/JPY 1m</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3.3.0/build/global/luxon.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.0"></script>
+  <style>
+    body { background: #0f0f0f; color: #eee; margin: 0; padding: 15px; font-family: 'Segoe UI', sans-serif; }
+    h1 { color: #00ff88; }
+    #chartContainer { background: #1a1a1a; padding: 15px; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h1>USD/JPY 1m • EdgeFlow Bot</h1>
+  <div id="chartContainer">
+    <canvas id="myChart" height="750"></canvas>
+  </div>
+
+  <script>
+    fetch('static/equity_data.json')
+      .then(r => r.json())
+      .then(trades => {
+        let equity = 100;
+        const labels = [];
+        const equityValues = [];
+
+        trades.forEach(trade => {
+          equity += parseFloat(trade.profit || 0);
+          labels.push(trade.timestamp);
+          equityValues.push(equity);
+        });
+
+        new Chart(document.getElementById('myChart'), {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Equity ($)',
+              data: equityValues,
+              borderColor: '#00ff88',
+              borderWidth: 3,
+              tension: 0.1,
+              pointRadius: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+              x: { 
+                type: 'time',
+                time: { parser: 'yyyy-MM-dd HH:mm:ss', tooltipFormat: 'HH:mm' },
+                ticks: { color: '#aaa' }
+              },
+              y: { 
+                ticks: { color: '#aaa' },
+                grid: { color: '#333' }
+              }
+            },
+            plugins: {
+              legend: { labels: { color: '#ddd' } },
+              tooltip: { mode: 'index' }
+            },
+            animation: { duration: 800 }
+          }
+        });
+
+        console.log(`✅ Chart loaded with ${trades.length} trades`);
+      })
+      .catch(err => console.error(err));
+  </script>
+</body>
+</html>

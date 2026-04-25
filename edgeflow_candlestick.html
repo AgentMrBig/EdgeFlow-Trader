@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>EdgeFlow • USD/JPY 1m Core Scalping Chart</title>
+  <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+  <style>
+    body { background: #0a0a0a; color: #ddd; margin: 0; padding: 12px; font-family: 'Segoe UI', system-ui, sans-serif; }
+    h1 { color: #00ff88; font-size: 22px; margin: 0 0 8px 0; }
+    #chart { width: 100%; height: 820px; background: #111; border-radius: 10px; border: 1px solid #222; }
+    .controls { margin: 10px 0; display: flex; gap: 8px; flex-wrap: wrap; }
+    .controls button { background: #1f1f1f; color: #ddd; border: 1px solid #333; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+    .controls button.active { background: #00ff88; color: #000; border-color: #00ff88; }
+    .legend { font-size: 12px; color: #888; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <h1>USD/JPY 1m • EdgeFlow Core Setup (9/20/100/200 + BB)</h1>
+  <div class="controls">
+    <button onclick="toggleSeries('ma9')" id="btn-ma9" class="active">9 SMA</button>
+    <button onclick="toggleSeries('ma20')" id="btn-ma20" class="active">20 SMA</button>
+    <button onclick="toggleSeries('ma100')" id="btn-ma100" class="active">100 SMA</button>
+    <button onclick="toggleSeries('ma200')" id="btn-ma200" class="active">200 SMA</button>
+    <button onclick="toggleSeries('bb')" id="btn-bb" class="active">Bollinger Bands</button>
+    <button onclick="resetZoom()">Reset Zoom</button>
+  </div>
+  <div id="chart"></div>
+  <div class="legend">Green = Bullish • Red = Bearish • Dashed = Bollinger • Yellow = 9 SMA (fast momentum)</div>
+
+  <script>
+    let chart, candleSeries, ma9Series, ma20Series, ma100Series, ma200Series, bbUpper, bbLower;
+    let seriesVisibility = { ma9: true, ma20: true, ma100: true, ma200: true, bb: true };
+
+    function calculateSMA(data, period) {
+      const sma = [];
+      for (let i = 0; i < data.length; i++) {
+        if (i < period - 1) {
+          sma.push(null);
+        } else {
+          let sum = 0;
+          for (let j = 0; j < period; j++) {
+            sum += data[i - j].close;
+          }
+          sma.push(sum / period);
+        }
+      }
+      return sma;
+    }
+
+    function calculateBollinger(data, period = 20, dev = 2) {
+      const upper = [], lower = [], mid = [];
+      for (let i = 0; i < data.length; i++) {
+        if (i < period - 1) {
+          upper.push(null); lower.push(null); mid.push(null);
+        } else {
+          let sum = 0, sqSum = 0;
+          for (let j = 0; j < period; j++) {
+            sum += data[i - j].close;
+            sqSum += data[i - j].close ** 2;
+          }
+          const mean = sum / period;
+          const std = Math.sqrt(sqSum / period - mean ** 2);
+          mid.push(mean);
+          upper.push(mean + dev * std);
+          lower.push(mean - dev * std);
+        }
+      }
+      return { upper, lower, mid };
+    }
+
+    fetch('static/usdjpy_m1.csv')
+      .then(r => r.text())
+      .then(text => {
+        const lines = text.trim().split('\n');
+        const data = [];
+
+        for (let i = 1; i < lines.length && i < 4000; i++) {
+          const cols = lines[i].split(',');
+          if (cols.length >= 6) {
+            const dateStr = cols[0], timeStr = cols[1];
+            const year = dateStr.substring(0,4), month = dateStr.substring(4,6), day = dateStr.substring(6,8);
+            const date = new Date(`${year}-${month}-${day}T${timeStr}`);
+            const unixTime = Math.floor(date.getTime() / 1000);
+
+            data.push({
+              time: unixTime,
+              open: parseFloat(cols[2]),
+              high: parseFloat(cols[3]),
+              low: parseFloat(cols[4]),
+              close: parseFloat(cols[5])
+            });
+          }
+        }
+
+        // Create chart
+        chart = LightweightCharts.createChart(document.getElementById('chart'), {
+          layout: { background: { color: '#111' }, textColor: '#ccc' },
+          grid: { vertLines: { color: '#222' }, horzLines: { color: '#222' } },
+          crosshair: { mode: LightweightCharts.CrosshairMode.Normal, vertLine: { color: '#555' }, horzLine: { color: '#555' } },
+          timeScale: { timeVisible: true, secondsVisible: false, borderColor: '#333' },
+          rightPriceScale: { borderColor: '#333', scaleMargins: { top: 0.1, bottom: 0.1 } }
+        });
+
+        // Candles
+        candleSeries = chart.addCandlestickSeries({
+          upColor: '#00ff88', downColor: '#ff4444',
+          borderVisible: false,
+          wickUpColor: '#00ff88', wickDownColor: '#ff4444'
+        });
+        candleSeries.setData(data);
+
+        // Calculate indicators
+        const ma9 = calculateSMA(data, 9);
+        const ma20 = calculateSMA(data, 20);
+        const ma100 = calculateSMA(data, 100);
+        const ma200 = calculateSMA(data, 200);
+        const bb = calculateBollinger(data, 20, 2);
+
+        // Add MA lines
+        ma9Series = chart.addLineSeries({ color: '#ffff00', lineWidth: 1.5, title: '9 SMA' });
+        ma9Series.setData(data.map((d, i) => ({ time: d.time, value: ma9[i] })).filter(d => d.value !== null));
+
+        ma20Series = chart.addLineSeries({ color: '#ffffff', lineWidth: 1.8, title: '20 SMA' });
+        ma20Series.setData(data.map((d, i) => ({ time: d.time, value: ma20[i] })).filter(d => d.value !== null));
+
+        ma100Series = chart.addLineSeries({ color: '#00ccff', lineWidth: 1.5, title: '100 SMA' });
+        ma100Series.setData(data.map((d, i) => ({ time: d.time, value: ma100[i] })).filter(d => d.value !== null));
+
+        ma200Series = chart.addLineSeries({ color: '#ff8800', lineWidth: 1.8, title: '200 SMA' });
+        ma200Series.setData(data.map((d, i) => ({ time: d.time, value: ma200[i] })).filter(d => d.value !== null));
+
+        // Bollinger Bands
+        bbUpper = chart.addLineSeries({ color: 'rgba(255,255,255,0.35)', lineWidth: 1, lineStyle: 2, title: 'BB Upper' });
+        bbUpper.setData(data.map((d, i) => ({ time: d.time, value: bb.upper[i] })).filter(d => d.value !== null));
+
+        bbLower = chart.addLineSeries({ color: 'rgba(255,255,255,0.35)', lineWidth: 1, lineStyle: 2, title: 'BB Lower' });
+        bbLower.setData(data.map((d, i) => ({ time: d.time, value: bb.lower[i] })).filter(d => d.value !== null));
+
+        // Day separators
+        let lastDay = null;
+        data.forEach((candle) => {
+          const d = new Date(candle.time * 1000);
+          const currentDay = d.toISOString().split('T')[0];
+          if (lastDay && currentDay !== lastDay) {
+            candleSeries.createPriceLine({
+              price: candle.low - 0.07,
+              color: '#555', lineWidth: 1.5, lineStyle: 2, axisLabelVisible: false
+            });
+          }
+          lastDay = currentDay;
+        });
+
+        chart.timeScale().fitContent();
+
+        // Store references for toggling
+        window.chartRefs = { ma9Series, ma20Series, ma100Series, ma200Series, bbUpper, bbLower };
+        console.log(`✅ Loaded ${data.length} candles with full core indicators`);
+      })
+      .catch(err => console.error("Error loading data:", err));
+
+    function toggleSeries(name) {
+      const btn = document.getElementById('btn-' + name);
+      const refs = window.chartRefs;
+      if (!refs) return;
+
+      let series;
+      if (name === 'ma9') series = refs.ma9Series;
+      else if (name === 'ma20') series = refs.ma20Series;
+      else if (name === 'ma100') series = refs.ma100Series;
+      else if (name === 'ma200') series = refs.ma200Series;
+      else if (name === 'bb') {
+        seriesVisibility.bb = !seriesVisibility.bb;
+        if (refs.bbUpper) refs.bbUpper.applyOptions({ visible: seriesVisibility.bb });
+        if (refs.bbLower) refs.bbLower.applyOptions({ visible: seriesVisibility.bb });
+        btn.classList.toggle('active', seriesVisibility.bb);
+        return;
+      }
+
+      if (series) {
+        seriesVisibility[name] = !seriesVisibility[name];
+        series.applyOptions({ visible: seriesVisibility[name] });
+        btn.classList.toggle('active', seriesVisibility[name]);
+      }
+    }
+
+    function resetZoom() {
+      if (chart) chart.timeScale().fitContent();
+    }
+  </script>
+</body>
+</html>

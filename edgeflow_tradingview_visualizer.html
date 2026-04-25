@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>EdgeFlow - TradingView Style</title>
+  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+  <style>
+    body { background: #0f0f0f; color: #eee; margin: 0; padding: 10px; font-family: 'Segoe UI', sans-serif; }
+    h1 { color: #00ff88; }
+    #chart { width: 100%; height: 820px; background: #1a1a1a; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h1>USD/JPY 1m • EdgeFlow Bot (TradingView Style)</h1>
+  <div id="chart"></div>
+
+  <script>
+    // Load both candles and trades
+    Promise.all([
+      fetch('usdjpy_m1.csv').then(r => r.text()),
+      fetch('equity_data.json').then(r => r.json())
+    ]).then(([csvText, trades]) => {
+      // Parse candles
+      const lines = csvText.trim().split('\n');
+      const candles = [];
+      for (let i = 1; i < lines.length && i < 1500; i++) {  // last ~1 day
+        const [date, time, o, h, l, c] = lines[i].split(',');
+        candles.push({
+          time: date + ' ' + time,
+          open: parseFloat(o),
+          high: parseFloat(h),
+          low: parseFloat(l),
+          close: parseFloat(c)
+        });
+      }
+
+      const chart = LightweightCharts.createChart(document.getElementById('chart'), {
+        layout: { background: { color: '#1a1a1a' }, textColor: '#ddd' },
+        grid: { vertLines: { color: '#333' }, horzLines: { color: '#333' } },
+        crosshair: { mode: LightweightCharts.CrosshairMode.Magnet },
+        timeScale: { timeVisible: true, secondsVisible: false }
+      });
+
+      const candleSeries = chart.addCandlestickSeries({
+        upColor: '#00ff88',
+        downColor: '#ff4444',
+        borderVisible: false,
+        wickUpColor: '#00ff88',
+        wickDownColor: '#ff4444'
+      });
+
+      candleSeries.setData(candles);
+
+      // Add trade markers
+      trades.forEach(trade => {
+        const color = trade.result === 'win' ? '#00ff88' : '#ff4444';
+        candleSeries.createPriceLine({
+          price: parseFloat(trade.entry),
+          color: color,
+          lineWidth: 3,
+          lineStyle: 2,
+          axisLabelVisible: true,
+          title: `${trade.direction.toUpperCase()} ${trade.lot_size} lot (${trade.result})`
+        });
+      });
+
+      chart.timeScale().fitContent();
+      console.log(`✅ Loaded ${candles.length} candles + ${trades.length} trades`);
+    }).catch(err => console.error("Error:", err));
+  </script>
+</body>
+</html>
+EOFcat > edgeflow_tradingview_visualizer.html << 'EOF'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>EdgeFlow - TradingView Style</title>
+  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+  <style>
+    body { background: #0f0f0f; color: #eee; margin: 0; padding: 10px; font-family: 'Segoe UI', sans-serif; }
+    h1 { color: #00ff88; }
+    #chart { width: 100%; height: 820px; background: #1a1a1a; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h1>USD/JPY 1m • EdgeFlow Bot (TradingView Style)</h1>
+  <div id="chart"></div>
+
+  <script>
+    // Load both candles and trades
+    Promise.all([
+      fetch('usdjpy_m1.csv').then(r => r.text()),
+      fetch('equity_data.json').then(r => r.json())
+    ]).then(([csvText, trades]) => {
+      // Parse candles
+      const lines = csvText.trim().split('\n');
+      const candles = [];
+      for (let i = 1; i < lines.length && i < 1500; i++) {  // last ~1 day
+        const [date, time, o, h, l, c] = lines[i].split(',');
+        candles.push({
+          time: date + ' ' + time,
+          open: parseFloat(o),
+          high: parseFloat(h),
+          low: parseFloat(l),
+          close: parseFloat(c)
+        });
+      }
+
+      const chart = LightweightCharts.createChart(document.getElementById('chart'), {
+        layout: { background: { color: '#1a1a1a' }, textColor: '#ddd' },
+        grid: { vertLines: { color: '#333' }, horzLines: { color: '#333' } },
+        crosshair: { mode: LightweightCharts.CrosshairMode.Magnet },
+        timeScale: { timeVisible: true, secondsVisible: false }
+      });
+
+      const candleSeries = chart.addCandlestickSeries({
+        upColor: '#00ff88',
+        downColor: '#ff4444',
+        borderVisible: false,
+        wickUpColor: '#00ff88',
+        wickDownColor: '#ff4444'
+      });
+
+      candleSeries.setData(candles);
+
+      // Add trade markers
+      trades.forEach(trade => {
+        const color = trade.result === 'win' ? '#00ff88' : '#ff4444';
+        candleSeries.createPriceLine({
+          price: parseFloat(trade.entry),
+          color: color,
+          lineWidth: 3,
+          lineStyle: 2,
+          axisLabelVisible: true,
+          title: `${trade.direction.toUpperCase()} ${trade.lot_size} lot (${trade.result})`
+        });
+      });
+
+      chart.timeScale().fitContent();
+      console.log(`✅ Loaded ${candles.length} candles + ${trades.length} trades`);
+    }).catch(err => console.error("Error:", err));
+  </script>
+</body>
+</html>
+EOFcat > edgeflow_tradingview_visualizer.html << 'EOF'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>EdgeFlow - TradingView Style</title>
+  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+  <style>
+    body { background: #0f0f0f; color: #eee; margin: 0; padding: 10px; font-family: 'Segoe UI', sans-serif; }
+    h1 { color: #00ff88; }
+    #chart { width: 100%; height: 820px; background: #1a1a1a; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h1>USD/JPY 1m • EdgeFlow Bot (TradingView Style)</h1>
+  <div id="chart"></div>
+
+  <script>
+    // Load both candles and trades
+    Promise.all([
+      fetch('usdjpy_m1.csv').then(r => r.text()),
+      fetch('equity_data.json').then(r => r.json())
+    ]).then(([csvText, trades]) => {
+      // Parse candles
+      const lines = csvText.trim().split('\n');
+      const candles = [];
+      for (let i = 1; i < lines.length && i < 1500; i++) {  // last ~1 day
+        const [date, time, o, h, l, c] = lines[i].split(',');
+        candles.push({
+          time: date + ' ' + time,
+          open: parseFloat(o),
+          high: parseFloat(h),
+          low: parseFloat(l),
+          close: parseFloat(c)
+        });
+      }
+
+      const chart = LightweightCharts.createChart(document.getElementById('chart'), {
+        layout: { background: { color: '#1a1a1a' }, textColor: '#ddd' },
+        grid: { vertLines: { color: '#333' }, horzLines: { color: '#333' } },
+        crosshair: { mode: LightweightCharts.CrosshairMode.Magnet },
+        timeScale: { timeVisible: true, secondsVisible: false }
+      });
+
+      const candleSeries = chart.addCandlestickSeries({
+        upColor: '#00ff88',
+        downColor: '#ff4444',
+        borderVisible: false,
+        wickUpColor: '#00ff88',
+        wickDownColor: '#ff4444'
+      });
+
+      candleSeries.setData(candles);
+
+      // Add trade markers
+      trades.forEach(trade => {
+        const color = trade.result === 'win' ? '#00ff88' : '#ff4444';
+        candleSeries.createPriceLine({
+          price: parseFloat(trade.entry),
+          color: color,
+          lineWidth: 3,
+          lineStyle: 2,
+          axisLabelVisible: true,
+          title: `${trade.direction.toUpperCase()} ${trade.lot_size} lot (${trade.result})`
+        });
+      });
+
+      chart.timeScale().fitContent();
+      console.log(`✅ Loaded ${candles.length} candles + ${trades.length} trades`);
+    }).catch(err => console.error("Error:", err));
+  </script>
+</body>
+</html>
+EOFcat > edgeflow_tradingview_visualizer.html << 'EOF'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>EdgeFlow - TradingView Style</title>
+  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+  <style>
+    body { background: #0f0f0f; color: #eee; margin: 0; padding: 10px; font-family: 'Segoe UI', sans-serif; }
+    h1 { color: #00ff88; }
+    #chart { width: 100%; height: 820px; background: #1a1a1a; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h1>USD/JPY 1m • EdgeFlow Bot (TradingView Style)</h1>
+  <div id="chart"></div>
+
+  <script>
+    // Load both candles and trades
+    Promise.all([
+      fetch('usdjpy_m1.csv').then(r => r.text()),
+      fetch('equity_data.json').then(r => r.json())
+    ]).then(([csvText, trades]) => {
+      // Parse candles
+      const lines = csvText.trim().split('\n');
+      const candles = [];
+      for (let i = 1; i < lines.length && i < 1500; i++) {  // last ~1 day
+        const [date, time, o, h, l, c] = lines[i].split(',');
+        candles.push({
+          time: date + ' ' + time,
+          open: parseFloat(o),
+          high: parseFloat(h),
+          low: parseFloat(l),
+          close: parseFloat(c)
+        });
+      }
+
+      const chart = LightweightCharts.createChart(document.getElementById('chart'), {
+        layout: { background: { color: '#1a1a1a' }, textColor: '#ddd' },
+        grid: { vertLines: { color: '#333' }, horzLines: { color: '#333' } },
+        crosshair: { mode: LightweightCharts.CrosshairMode.Magnet },
+        timeScale: { timeVisible: true, secondsVisible: false }
+      });
+
+      const candleSeries = chart.addCandlestickSeries({
+        upColor: '#00ff88',
+        downColor: '#ff4444',
+        borderVisible: false,
+        wickUpColor: '#00ff88',
+        wickDownColor: '#ff4444'
+      });
+
+      candleSeries.setData(candles);
+
+      // Add trade markers
+      trades.forEach(trade => {
+        const color = trade.result === 'win' ? '#00ff88' : '#ff4444';
+        candleSeries.createPriceLine({
+          price: parseFloat(trade.entry),
+          color: color,
+          lineWidth: 3,
+          lineStyle: 2,
+          axisLabelVisible: true,
+          title: `${trade.direction.toUpperCase()} ${trade.lot_size} lot (${trade.result})`
+        });
+      });
+
+      chart.timeScale().fitContent();
+      console.log(`✅ Loaded ${candles.length} candles + ${trades.length} trades`);
+    }).catch(err => console.error("Error:", err));
+  </script>
+</body>
+</html>

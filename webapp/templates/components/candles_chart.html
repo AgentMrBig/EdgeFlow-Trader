@@ -1,0 +1,105 @@
+<!-- Candles Chart Component -->
+<div id="candles-chart-container" class="w-full h-[620px] bg-[#0a0a0a] rounded-2xl overflow-hidden">
+  <div id="candles-chart" class="w-full h-full"></div>
+</div>
+
+<script>
+  let chartInstance = null;
+
+  async function initializeCandlesChart() {
+    const container = document.getElementById('candles-chart');
+    
+    const [ohlcResponse, tradesResponse] = await Promise.all([
+      fetch('/static/usdjpy_m1.csv'),
+      fetch('/static/trades.json')
+    ]);
+    
+    const ohlcText = await ohlcResponse.text();
+    const trades = await tradesResponse.json();
+    
+    const lines = ohlcText.trim().split('\n');
+    let data = [];
+    let priceDataMap = {};
+    
+    for (let i = 1; i < lines.length; i++) {
+      const cols = lines[i].split(',');
+      if (cols.length >= 6) {
+        const dateStr = cols[0], timeStr = cols[1];
+        const year = dateStr.substring(0,4), month = dateStr.substring(4,6), day = dateStr.substring(6,8);
+        const date = new Date(`${year}-${month}-${day}T${timeStr}`);
+        const unixTime = Math.floor(date.getTime() / 1000);
+        
+        const candle = {
+          time: unixTime,
+          open: parseFloat(cols[2]),
+          high: parseFloat(cols[3]),
+          low: parseFloat(cols[4]),
+          close: parseFloat(cols[5])
+        };
+        data.push(candle);
+        priceDataMap[unixTime] = candle.close;
+      }
+    }
+    
+    data = data.slice(-1440);
+    
+    chartInstance = LightweightCharts.createChart(container, {
+      layout: { background: { color: '#0a0a0a' }, textColor: '#888' },
+      grid: { vertLines: { color: '#1a1a1a' }, horzLines: { color: '#1a1a1a' } },
+      crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+      timeScale: { timeVisible: true, secondsVisible: false },
+      rightPriceScale: { borderColor: '#222', scaleMargins: { top: 0.08, bottom: 0.08 } },
+      localization: { priceFormatter: (price) => price.toFixed(3) }
+    });
+    
+    const candleSeries = chartInstance.addCandlestickSeries({
+      upColor: '#00ff88', downColor: '#ff4444', borderVisible: false,
+      wickUpColor: '#00ff88', wickDownColor: '#ff4444'
+    });
+    candleSeries.setData(data);
+    
+    // Moving Averages + Bollinger (same as before)
+    const ma9 = calculateSMA(data, 9);
+    const ma20 = calculateSMA(data, 20);
+    const ma100 = calculateSMA(data, 100);
+    const ma200 = calculateSMA(data, 200);
+    const bb = calculateBollinger(data, 20, 2);
+    
+    // ... (add the MA and BB series here - same code as previous version)
+    
+    // Trade Markers
+    if (trades && trades.length > 0) {
+      trades.forEach(trade => {
+        const entryTime = Math.floor(new Date(trade.timestamp).getTime() / 1000);
+        const exitTime = Math.floor(new Date(trade.exit_timestamp).getTime() / 1000);
+        const entryPrice = priceDataMap[entryTime] || trade.entry;
+        const exitPrice = priceDataMap[exitTime] || trade.exit;
+        const isWin = trade.result === 'win';
+        const color = isWin ? '#00ff88' : '#ff4444';
+        const isBuy = trade.direction === 'buy';
+        
+        const tradeSeries = chartInstance.addLineSeries({
+          color: color, lineWidth: 1.4, lineStyle: 2,
+          pointMarkersVisible: true, pointMarkersRadius: 6,
+          pointMarkersShape: isBuy ? 'triangleUp' : 'triangleDown',
+          lastValueVisible: false, priceLineVisible: false
+        });
+        tradeSeries.setData([
+          { time: entryTime, value: entryPrice },
+          { time: exitTime, value: exitPrice }
+        ]);
+      });
+    }
+    
+    chartInstance.timeScale().fitContent();
+    window.chartInstance = chartInstance;
+  }
+  
+  // Helper functions (calculateSMA, calculateBollinger) - same as before
+  
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeCandlesChart);
+  } else {
+    initializeCandlesChart();
+  }
+</script>

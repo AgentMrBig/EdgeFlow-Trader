@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>EdgeFlow • USD/JPY 1m — Triangles + X + Clean</title>
+  <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+  <style>
+    body { background: #0a0a0a; color: #ddd; margin: 0; padding: 12px; font-family: 'Segoe UI', system-ui, sans-serif; }
+    h1 { color: #00ff88; font-size: 22px; margin: 0 0 8px 0; }
+    #chart { width: 100%; height: 820px; background: #111; border-radius: 10px; border: 1px solid #222; }
+    .controls { margin: 10px 0; display: flex; gap: 8px; flex-wrap: wrap; }
+    .controls button { background: #1f1f1f; color: #ddd; border: 1px solid #333; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+    .controls button.active { background: #00ff88; color: #000; border-color: #00ff88; }
+    .legend { font-size: 12px; color: #888; margin-top: 4px; }
+    #tooltip {
+      position: absolute;
+      background: #1a1a1a;
+      border: 1px solid #00ff88;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: #ddd;
+      pointer-events: none;
+      z-index: 1000;
+      display: none;
+      box-shadow: 0 6px 20px rgba(0, 255, 136, 0.25);
+      min-width: 280px;
+      line-height: 1.6;
+    }
+    #tooltip .win { color: #00ff88; font-weight: bold; }
+    #tooltip .loss { color: #ff4444; font-weight: bold; }
+    #tooltip .balance { color: #ffff00; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>USD/JPY 1m • EdgeFlow Core + <span style="color:#0f0">101 Trades • +$32,987 PnL (Last 24h)</span></h1>
+  <div class="controls">
+    <button onclick="toggleSeries('ma9')" id="btn-ma9" class="active">9 SMA</button>
+    <button onclick="toggleSeries('ma20')" id="btn-ma20" class="active">20 SMA</button>
+    <button onclick="toggleSeries('ma100')" id="btn-ma100" class="active">100 SMA</button>
+    <button onclick="toggleSeries('ma200')" id="btn-ma200" class="active">200 SMA</button>
+    <button onclick="toggleSeries('bb')" id="btn-bb" class="active">Bollinger Bands</button>
+    <button onclick="toggleTrades()" id="btn-trades" class="active">Trade Markers</button>
+    <button onclick="resetZoom()">Reset Zoom</button>
+  </div>
+  <div id="chart"></div>
+  <div id="tooltip"></div>
+  <div class="legend">▲ Green = Buy Win • ▼ Red = Sell Loss • Dashed line = Entry → Exit • Hover for details</div>
+
+  <script>
+    let chart, candleSeries, ma9Series, ma20Series, ma100Series, ma200Series, bbUpper, bbLower;
+    let tradeMarkers = [];
+    let tradesData = [];
+    let priceDataMap = {};
+    let seriesVisibility = { ma9: true, ma20: true, ma100: true, ma200: true, bb: true, trades: true };
+
+    function formatPrice(price) {
+      return price.toFixed(3);
+    }
+
+    function calculateSMA(data, period) {
+      const sma = [];
+      for (let i = 0; i < data.length; i++) {
+        if (i < period - 1) { sma.push(null); } else {
+          let sum = 0;
+          for (let j = 0; j < period; j++) { sum += data[i - j].close; }
+          sma.push(sum / period);
+        }
+      }
+      return sma;
+    }
+
+    function calculateBollinger(data, period = 20, dev = 2) {
+      const upper = [], lower = [];
+      for (let i = 0; i < data.length; i++) {
+        if (i < period - 1) { upper.push(null); lower.push(null); } else {
+          let sum = 0, sqSum = 0;
+          for (let j = 0; j < period; j++) {
+            sum += data[i - j].close;
+            sqSum += data[i - j].close ** 2;
+          }
+          const mean = sum / period;
+          const std = Math.sqrt(sqSum / period - mean ** 2);
+          upper.push(mean + dev * std);
+          lower.push(mean - dev * std);
+        }
+      }
+      return { upper, lower };
+    }
+
+    async function initChart() {
+      const response = await fetch('static/usdjpy_m1.csv');
+      const text = await response.text();
+      const lines = text.trim().split('\n');
+      let data = [];
+
+      for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(',');
+        if (cols.length >= 6) {
+          const dateStr = cols[0], timeStr = cols[1];
+          const year = dateStr.substring(0,4), month = dateStr.substring(4,6), day = dateStr.substring(6,8);
+          const date = new Date(`${year}-${month}-${day}T${timeStr}`);
+          const unixTime = Math.floor(date.getTime() / 1000);
+
+          const candle = {
+            time: unixTime,
+            open: parseFloat(cols[2]),
+            high: parseFloat(cols[3]),
+            low: parseFloat(cols[4]),
+            close: parseFloat(cols[5])
+          };
+          data.push(candle);
+          priceDataMap[unixTime] = candle.close;
+        }
+      }
+
+      data = data.slice(-1440);
+
+      chart = LightweightCharts.createChart(document.getElementById('chart'), {
+        layout: { background: { color: '#111' }, textColor: '#ccc' },
+        grid: { vertLines: { color: '#222' }, horzLines: { color: '#222' } },
+        crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+        timeScale: { timeVisible: true, secondsVisible: false },
+        rightPriceScale: { borderColor: '#333', scaleMargins: { top: 0.1, bottom: 0.1 } },
+        localization: { priceFormatter: (price) => price.toFixed(3) }
+      });
+
+      candleSeries = chart.addCandlestickSeries({
+        upColor: '#00ff88', downColor: '#ff4444',
+        borderVisible: false,
+        wickUpColor: '#00ff88', wickDownColor: '#ff4444'
+      });
+      candleSeries.setData(data);
+
+      const ma9 = calculateSMA(data, 9);
+      const ma20 = calculateSMA(data, 20);
+      const ma100 = calculateSMA(data, 100);
+      const ma200 = calculateSMA(data, 200);
+      const bb = calculateBollinger(data, 20, 2);
+
+      ma9Series = chart.addLineSeries({ color: '#ffff00', lineWidth: 1.5, lastValueVisible: false, priceLineVisible: false });
+      ma9Series.setData(data.map((d, i) => ({ time: d.time, value: ma9[i] })).filter(d => d.value !== null));
+
+      ma20Series = chart.addLineSeries({ color: '#ffffff', lineWidth: 1.8, lastValueVisible: false, priceLineVisible: false });
+      ma20Series.setData(data.map((d, i) => ({ time: d.time, value: ma20[i] })).filter(d => d.value !== null));
+
+      ma100Series = chart.addLineSeries({ color: '#00ccff', lineWidth: 1.5, lastValueVisible: false, priceLineVisible: false });
+      ma100Series.setData(data.map((d, i) => ({ time: d.time, value: ma100[i] })).filter(d => d.value !== null));
+
+      ma200Series = chart.addLineSeries({ color: '#ff8800', lineWidth: 1.8, lastValueVisible: false, priceLineVisible: false });
+      ma200Series.setData(data.map((d, i) => ({ time: d.time, value: ma200[i] })).filter(d => d.value !== null));
+
+      bbUpper = chart.addLineSeries({ color: 'rgba(255,255,255,0.35)', lineWidth: 1, lineStyle: 2, lastValueVisible: false, priceLineVisible: false });
+      bbUpper.setData(data.map((d, i) => ({ time: d.time, value: bb.upper[i] })).filter(d => d.value !== null));
+
+      bbLower = chart.addLineSeries({ color: 'rgba(255,255,255,0.35)', lineWidth: 1, lineStyle: 2, lastValueVisible: false, priceLineVisible: false });
+      bbLower.setData(data.map((d, i) => ({ time: d.time, value: bb.lower[i] })).filter(d => d.value !== null));
+
+      await loadTrades(data);
+
+      const tooltip = document.getElementById('tooltip');
+
+      chart.subscribeCrosshairMove(param => {
+        if (!param.time || !tradesData.length) {
+          tooltip.style.display = 'none';
+          return;
+        }
+
+        let closest = null;
+        let minDist = Infinity;
+
+        tradesData.forEach(trade => {
+          const tradeTime = Math.floor(new Date(trade.timestamp).getTime() / 1000);
+          const timeDiff = Math.abs(param.time - tradeTime);
+          if (timeDiff < minDist && timeDiff < 300) {
+            minDist = timeDiff;
+            closest = trade;
+          }
+        });
+
+        if (closest && minDist < 300) {
+          tooltip.innerHTML = `
+            <strong>${closest.direction.toUpperCase()} Trade</strong><br>
+            <b>Entry:</b> ${formatPrice(closest.entry)} @ ${new Date(closest.timestamp).toLocaleTimeString()}<br>
+            <b>Exit:</b> ${formatPrice(closest.exit)}<br>
+            <b>P&amp;L:</b> <span class="${closest.result}">${closest.profit > 0 ? '+' : ''}${closest.profit}</span><br>
+            <b>Lot:</b> ${closest.lot_size} &nbsp;|&nbsp; <b>Result:</b> <span class="${closest.result}">${closest.result.toUpperCase()}</span><br>
+            <b>Balance Before:</b> <span class="balance">$${closest.balanceBefore.toLocaleString()}</span><br>
+            <b>Balance After:</b> <span class="balance">$${closest.balanceAfter.toLocaleString()}</span>
+          `;
+          tooltip.style.left = `${param.point.x + 25}px`;
+          tooltip.style.top = `${param.point.y - 40}px`;
+          tooltip.style.display = 'block';
+        } else {
+          tooltip.style.display = 'none';
+        }
+      });
+
+      chart.timeScale().fitContent();
+      window.chartRefs = { ma9Series, ma20Series, ma100Series, ma200Series, bbUpper, bbLower };
+    }
+
+    async function loadTrades(priceData) {
+      try {
+        const res = await fetch('static/trades.json');
+        const rawTrades = await res.json();
+
+        let runningBalance = 100.0;
+
+        tradesData = rawTrades.map(trade => {
+          const balanceBefore = Math.round(runningBalance * 100) / 100;
+          runningBalance += trade.profit;
+          const balanceAfter = Math.round(runningBalance * 100) / 100;
+
+          return {
+            ...trade,
+            balanceBefore: balanceBefore,
+            balanceAfter: balanceAfter
+          };
+        });
+
+        // Per-trade: Entry triangle + Exit X + Dashed line (no cross-trade connections)
+        tradesData.forEach(trade => {
+          const entryTime = Math.floor(new Date(trade.timestamp).getTime() / 1000);
+          const exitTime = Math.floor(new Date(trade.exit_timestamp).getTime() / 1000);
+          const entryPrice = priceDataMap[entryTime] || trade.entry;
+          const exitPrice = priceDataMap[exitTime] || trade.exit;
+          const isWin = trade.result === 'win';
+          const color = isWin ? '#00ff88' : '#ff4444';
+          const isBuy = trade.direction === 'buy';
+
+          // One series per trade with correct shapes
+          const tradeSeries = chart.addLineSeries({
+            color: color,
+            lineWidth: 1.5,
+            lineStyle: 2, // dashed
+            pointMarkersVisible: true,
+            pointMarkersRadius: 7,
+            pointMarkersShape: isBuy ? 'triangleUp' : 'triangleDown',
+            lastValueVisible: false,
+            priceLineVisible: false
+          });
+
+          tradeSeries.setData([
+            { time: entryTime, value: entryPrice },
+            { time: exitTime, value: exitPrice }
+          ]);
+
+          tradeMarkers.push(tradeSeries);
+        });
+
+        console.log(`✅ Loaded ${tradesData.length} trades — ▲ Buy / ▼ Sell triangles + dashed line per trade`);
+      } catch (e) {
+        console.log("No trades.json");
+      }
+    }
+
+    function toggleSeries(name) {
+      const btn = document.getElementById('btn-' + name);
+      const refs = window.chartRefs;
+      if (!refs) return;
+
+      let series;
+      if (name === 'ma9') series = refs.ma9Series;
+      else if (name === 'ma20') series = refs.ma20Series;
+      else if (name === 'ma100') series = refs.ma100Series;
+      else if (name === 'ma200') series = refs.ma200Series;
+      else if (name === 'bb') {
+        seriesVisibility.bb = !seriesVisibility.bb;
+        if (refs.bbUpper) refs.bbUpper.applyOptions({ visible: seriesVisibility.bb });
+        if (refs.bbLower) refs.bbLower.applyOptions({ visible: seriesVisibility.bb });
+        btn.classList.toggle('active', seriesVisibility.bb);
+        return;
+      }
+
+      if (series) {
+        seriesVisibility[name] = !seriesVisibility[name];
+        series.applyOptions({ visible: seriesVisibility[name] });
+        btn.classList.toggle('active', seriesVisibility[name]);
+      }
+    }
+
+    function toggleTrades() {
+      const btn = document.getElementById('btn-trades');
+      seriesVisibility.trades = !seriesVisibility.trades;
+
+      tradeMarkers.forEach(marker => {
+        marker.applyOptions({ visible: seriesVisibility.trades });
+      });
+
+      btn.classList.toggle('active', seriesVisibility.trades);
+    }
+
+    function resetZoom() {
+      if (chart) chart.timeScale().fitContent();
+    }
+
+    initChart();
+  </script>
+</body>
+</html>
